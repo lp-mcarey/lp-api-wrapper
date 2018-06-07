@@ -32,90 +32,91 @@ class Engagements:
         for record in records:
             try:
                 engagement_id = record['info']['engagementId']
+                engagement_sequence = record['info']['engagementSequence']
             except KeyError:
                 raise ValueError('Oops! ~ Not an Engagement!')
 
             for event, data in record.items():
                 if 'campaign' in event:
-                    self.__parse_campaign_data(data=data, engagement_id=engagement_id)
+                    self.__parse_campaign_data(data=data, engagement_id=engagement_id, engagement_sequence=engagement_sequence)
                 elif 'coBrowseSessions' in event:
-                    self.__parse_campaign_data(data=data, engagement_id=engagement_id)
+                    self.__parse_campaign_data(data=data, engagement_id=engagement_id, engagement_sequence=engagement_sequence)
                 elif 'info' in event:
                     self.__parse_info_data(data=data)
                 elif 'lineScores' in event:
-                    self.__parse_line_score_data(data=data, engagement_id=engagement_id)
+                    self.__parse_line_score_data(data=data, engagement_id=engagement_id, engagement_sequence=engagement_sequence)
                 elif 'surveys' in event:
-                    self.__parse_survey_data(data=data, engagement_id=engagement_id)
+                    self.__parse_survey_data(data=data, engagement_id=engagement_id, engagement_sequence=engagement_sequence)
                 elif 'transcript' in event:
-                    self.__parse_transcript_data(data=data, engagement_id=engagement_id)
+                    self.__parse_transcript_data(data=data, engagement_id=engagement_id, engagement_sequence=engagement_sequence)
                 elif 'visitorInfo' in event:
-                    self.__parse_visitor_info_data(data=data, engagement_id=engagement_id)
+                    self.__parse_visitor_info_data(data=data, engagement_id=engagement_id, engagement_sequence=engagement_sequence)
                 elif 'sdes' in event and 'events' in data and data['events']:
-                    self.__parse_sde_data(data=data['events'], engagement_id=engagement_id)
+                    self.__parse_sde_data(data=data['events'], engagement_id=engagement_id, engagement_sequence=engagement_sequence)
 
-    def __parse_campaign_data(self, data, engagement_id):
-        event = Campaign.parse_from_data(data=data, engagement_id=engagement_id)
+    def __parse_campaign_data(self, data, engagement_id, engagement_sequence):
+        event = Campaign.parse_from_data(data=data, engagement_id=engagement_id, engagement_sequence=engagement_sequence)
         self.campaign.append(event)
 
-    def __parse_cobrowse_session_data(self, data, engagement_id):
+    def __parse_cobrowse_session_data(self, data, engagement_id, engagement_sequence):
         if 'coBrowseSessionsList' in data and data['coBrowseSessionsList']:
             cb_sessions = data['coBrowseSessionsList']
-            events = [CoBrowseSession.parse_from_data(data=item, engagement_id=engagement_id) for item in cb_sessions]
+            events = [CoBrowseSession.parse_from_data(data=item, engagement_id=engagement_id, engagement_sequence=engagement_sequence) for item in cb_sessions]
             self.cobrowse_sessions.extend(events)
 
     def __parse_info_data(self, data):
         event = Info.parse_from_data(data=data)
         self.info.append(event)
 
-    def __parse_line_score_data(self, data, engagement_id):
-        events = [LineScore.parse_from_data(data=item, engagement_id=engagement_id) for item in data]
+    def __parse_line_score_data(self, data, engagement_id, engagement_sequence):
+        events = [LineScore.parse_from_data(data=item, engagement_id=engagement_id, engagement_sequence=engagement_sequence) for item in data]
         self.line_scores.extend(events)
 
-    def __parse_survey_data(self, data, engagement_id):
+    def __parse_survey_data(self, data, engagement_id, engagement_sequence):
         parsed_surveys = []
         for survey_type, survey_items in data.items():
             for survey in survey_items:
                 survey['surveyType'] = survey_type
                 parsed_surveys.append(survey)
 
-        events = [Survey.parse_from_data(data=item, engagement_id=engagement_id) for item in parsed_surveys]
+        events = [Survey.parse_from_data(data=item, engagement_id=engagement_id, engagement_sequence=engagement_sequence) for item in parsed_surveys]
         self.surveys.extend(events)
 
-    def __parse_transcript_data(self, data, engagement_id):
+    def __parse_transcript_data(self, data, engagement_id, engagement_sequence):
         if 'lines' in data and data['lines']:
-            events = [Transcript.parse_from_data(data=item, engagement_id=engagement_id) for item in data['lines']]
+            events = [Transcript.parse_from_data(data=item, engagement_id=engagement_id, engagement_sequence=engagement_sequence) for item in data['lines']]
             self.transcript.extend(events)
 
-    def __parse_visitor_info_data(self, data, engagement_id):
-        event = VisitorInfo.parse_from_data(data=data, engagement_id=engagement_id)
+    def __parse_visitor_info_data(self, data, engagement_id, engagement_sequence):
+        event = VisitorInfo.parse_from_data(data=data, engagement_id=engagement_id, engagement_sequence=engagement_sequence)
         self.visitor_info.append(event)
 
-    def __parse_sde_data(self, data, engagement_id):
+    def __parse_sde_data(self, data, engagement_id, engagement_sequence):
         for sde_event in data:
             if 'sdeType' in sde_event:
                 sde_type = sde_event['sdeType']
                 if sde_type == 'CART_STATUS':
-                    self.__parse_sde_cart_status(sde=sde_event, engagement_id=engagement_id)
+                    self.__parse_sde_cart_status(sde=sde_event, engagement_id=engagement_id, engagement_sequence=engagement_sequence)
                 elif sde_type == 'CUSTOMER_INFO':
-                    self.__parse_sde_customer_info(sde=sde_event, engagement_id=engagement_id)
+                    self.__parse_sde_customer_info(sde=sde_event, engagement_id=engagement_id, engagement_sequence=engagement_sequence)
                 elif sde_type == 'LEAD':
-                    self.__parse_sde_lead(sde=sde_event, engagement_id=engagement_id)
+                    self.__parse_sde_lead(sde=sde_event, engagement_id=engagement_id, engagement_sequence=engagement_sequence)
                 elif sde_type == 'MARKETING_CAMPAIGN_INFO':
-                    self.__parse_sde_marketing_campaign_info(sde=sde_event, engagement_id=engagement_id)
+                    self.__parse_sde_marketing_campaign_info(sde=sde_event, engagement_id=engagement_id, engagement_sequence=engagement_sequence)
                 elif sde_type == 'PERSONAL_INFO':
-                    self.__parse_sde_personal_info(sde=sde_event, engagement_id=engagement_id)
+                    self.__parse_sde_personal_info(sde=sde_event, engagement_id=engagement_id, engagement_sequence=engagement_sequence)
                 elif sde_type == 'PURCHASE':
-                    self.__parse_sde_purchase(sde=sde_event, engagement_id=engagement_id)
+                    self.__parse_sde_purchase(sde=sde_event, engagement_id=engagement_id, engagement_sequence=engagement_sequence)
                 elif sde_type == 'SEARCH_CONTENT':
-                    self.__parse_sde_search_content(sde=sde_event, engagement_id=engagement_id)
+                    self.__parse_sde_search_content(sde=sde_event, engagement_id=engagement_id, engagement_sequence=engagement_sequence)
                 elif sde_type == 'SERVICE_ACTIVITY':
-                    self.__parse_sde_service_activity(sde=sde_event, engagement_id=engagement_id)
+                    self.__parse_sde_service_activity(sde=sde_event, engagement_id=engagement_id, engagement_sequence=engagement_sequence)
                 elif sde_type == 'VISITOR_ERROR':
-                    self.__parse_sde_visitor_error(sde=sde_event, engagement_id=engagement_id)
+                    self.__parse_sde_visitor_error(sde=sde_event, engagement_id=engagement_id, engagement_sequence=engagement_sequence)
                 elif sde_type == 'VIEWED_PRODUCT':
-                    self.__parse_sde_viewed_product(sde=sde_event, engagement_id=engagement_id)
+                    self.__parse_sde_viewed_product(sde=sde_event, engagement_id=engagement_id, engagement_sequence=engagement_sequence)
 
-    def __parse_sde_cart_status(self, sde, engagement_id):
+    def __parse_sde_cart_status(self, sde, engagement_id, engagement_sequence):
         if 'cartStatus' in sde:
             cs_sde = sde['cartStatus']
             cs_sde['sdeType'] = sde['sdeType'] if 'sdeType' in sde else None
@@ -146,13 +147,13 @@ class Engagements:
                         if 'price' in prod_item:
                             cs_sde['productPrice'] = prod_item['price']
 
-                    event = CartStatus.parse_from_data(data=cs_sde, engagement_id=engagement_id)
+                    event = CartStatus.parse_from_data(data=cs_sde, engagement_id=engagement_id, engagement_sequence=engagement_sequence)
                     self.cart_status.append(event)
             else:
-                event = CartStatus.parse_from_data(data=cs_sde, engagement_id=engagement_id)
+                event = CartStatus.parse_from_data(data=cs_sde, engagement_id=engagement_id, engagement_sequence=engagement_sequence)
                 self.cart_status.append(event)
 
-    def __parse_sde_customer_info(self, sde, engagement_id):
+    def __parse_sde_customer_info(self, sde, engagement_id, engagement_sequence):
         if 'customerInfo' in sde and 'customerInfo' in sde['customerInfo']:
             ci_sde = sde['customerInfo']['customerInfo']
             ci_sde['sdeType'] = sde['sdeType'] if 'sdeType' in sde else None
@@ -187,30 +188,30 @@ class Engagements:
                 if 'year' in r_date:
                     ci_sde['lastPaymentYear'] = r_date['year']
 
-            event = CustomerInfo.parse_from_data(data=ci_sde, engagement_id=engagement_id)
+            event = CustomerInfo.parse_from_data(data=ci_sde, engagement_id=engagement_id, engagement_sequence=engagement_sequence)
             self.customer_info.append(event)
 
-    def __parse_sde_lead(self, sde, engagement_id):
+    def __parse_sde_lead(self, sde, engagement_id, engagement_sequence):
         if 'lead' in sde and 'lead' in sde['lead']:
             lead_sde = sde['lead']['lead']
             lead_sde['sdeType'] = sde['sdeType'] if 'sdeType' in sde else None
             lead_sde['isAuthenticated'] = sde['isAuthenticated'] if 'isAuthenticated' in sde else None
             lead_sde['serverTimeStamp'] = sde['serverTimeStamp'] if 'serverTimeStamp' in sde else None
 
-            event = Lead.parse_from_data(data=lead_sde, engagement_id=engagement_id)
+            event = Lead.parse_from_data(data=lead_sde, engagement_id=engagement_id, engagement_sequence=engagement_sequence)
             self.lead.append(event)
 
-    def __parse_sde_marketing_campaign_info(self, sde, engagement_id):
+    def __parse_sde_marketing_campaign_info(self, sde, engagement_id, engagement_sequence):
         if 'marketingCampaignInfo' in sde and 'marketingCampaignInfo' in sde['marketingCampaignInfo']:
             mci_sde = sde['marketingCampaignInfo']['marketingCampaignInfo']
             mci_sde['sdeType'] = sde['sdeType'] if 'sdeType' in sde else None
             mci_sde['isAuthenticated'] = sde['isAuthenticated'] if 'isAuthenticated' in sde else None
             mci_sde['serverTimeStamp'] = sde['serverTimeStamp'] if 'serverTimeStamp' in sde else None
 
-            event = MarketingCampaignInfo.parse_from_data(data=mci_sde, engagement_id=engagement_id)
+            event = MarketingCampaignInfo.parse_from_data(data=mci_sde, engagement_id=engagement_id, engagement_sequence=engagement_sequence)
             self.marketing_campaign_info.append(event)
 
-    def __parse_sde_personal_info(self, sde, engagement_id):
+    def __parse_sde_personal_info(self, sde, engagement_id, engagement_sequence):
         if 'personalInfo' in sde and 'personalInfo' in sde['personalInfo']:
             pi_sde = sde['personalInfo']['personalInfo']
             pi_sde['sdeType'] = sde['sdeType'] if 'sdeType' in sde else None
@@ -244,13 +245,13 @@ class Engagements:
                             pi_sde['email'] = pc['email']
                         if 'phone' in pc:
                             pi_sde['phone'] = pc['phone']
-                        event = PersonalInfo.parse_from_data(data=pi_sde, engagement_id=engagement_id)
+                        event = PersonalInfo.parse_from_data(data=pi_sde, engagement_id=engagement_id, engagement_sequence=engagement_sequence)
                         self.personal_info.append(event)
             else:
-                event = PersonalInfo.parse_from_data(data=pi_sde, engagement_id=engagement_id)
+                event = PersonalInfo.parse_from_data(data=pi_sde, engagement_id=engagement_id, engagement_sequence=engagement_sequence)
                 self.personal_info.append(event)
 
-    def __parse_sde_purchase(self, sde, engagement_id):
+    def __parse_sde_purchase(self, sde, engagement_id, engagement_sequence):
         if 'purchase' in sde:
             p_sde = sde['purchase']
             p_sde['sdeType'] = sde['sdeType'] if 'sdeType' in sde else None
@@ -293,13 +294,13 @@ class Engagements:
                             if 'price' in prod_item:
                                 p_sde['productPrice'] = prod_item['price']
 
-                        event = Purchase.parse_from_data(data=p_sde, engagement_id=engagement_id)
+                        event = Purchase.parse_from_data(data=p_sde, engagement_id=engagement_id, engagement_sequence=engagement_sequence)
                         self.purchase.append(event)
                 else:
-                    event = Purchase.parse_from_data(data=p_sde, engagement_id=engagement_id)
+                    event = Purchase.parse_from_data(data=p_sde, engagement_id=engagement_id, engagement_sequence=engagement_sequence)
                     self.purchase.append(event)
 
-    def __parse_sde_search_content(self, sde, engagement_id):
+    def __parse_sde_search_content(self, sde, engagement_id, engagement_sequence):
         if 'searchContent' in sde and 'keywords' in sde['searchContent']:
             keywords = sde['searchContent']['keywords']
 
@@ -309,30 +310,32 @@ class Engagements:
                 sc_sde['isAuthenticated'] = sde['isAuthenticated'] if 'isAuthenticated' in sde else None
                 sc_sde['serverTimeStamp'] = sde['serverTimeStamp'] if 'serverTimeStamp' in sde else None
 
-                event = SearchContent.parse_from_data(data=sc_sde, engagement_id=engagement_id)
+                event = SearchContent.parse_from_data(data=sc_sde, engagement_id=engagement_id, engagement_sequence=engagement_sequence)
                 self.search_content.append(event)
 
-    def __parse_sde_service_activity(self, sde, engagement_id):
+    def __parse_sde_service_activity(self, sde, engagement_id, engagement_sequence):
         if 'serviceActivity' in sde and 'serviceActivity' in sde['serviceActivity']:
             se_sde = sde['serviceActivity']['serviceActivity']
             se_sde['sdeType'] = sde['sdeType'] if 'sdeType' in sde else None
             se_sde['isAuthenticated'] = sde['isAuthenticated'] if 'isAuthenticated' in sde else None
             se_sde['serverTimeStamp'] = sde['serverTimeStamp'] if 'serverTimeStamp' in sde else None
 
-            event = ServiceActivity.parse_from_data(data=se_sde, engagement_id=engagement_id)
+            event = ServiceActivity.parse_from_data(data=se_sde, engagement_id=engagement_id, engagement_sequence=engagement_sequence)
             self.service_activity.append(event)
 
-    def __parse_sde_visitor_error(self, sde, engagement_id):
-        if 'visitorError' in sde and 'visitorError' in sde['visitorError']:
-            vi_sde = sde['visitorError']['visitorError']
+    def __parse_sde_visitor_error(self, sde, engagement_id, engagement_sequence):
+        print(sde)
+
+        if 'formFillingError' in sde and 'visitorError' in sde['formFillingError']:
+            vi_sde = sde['formFillingError']['visitorError']
             vi_sde['sdeType'] = sde['sdeType'] if 'sdeType' in sde else None
             vi_sde['isAuthenticated'] = sde['isAuthenticated'] if 'isAuthenticated' in sde else None
             vi_sde['serverTimeStamp'] = sde['serverTimeStamp'] if 'serverTimeStamp' in sde else None
 
-            event = VisitorError.parse_from_data(data=vi_sde, engagement_id=engagement_id)
+            event = VisitorError.parse_from_data(data=vi_sde, engagement_id=engagement_id, engagement_sequence=engagement_sequence)
             self.visitor_error.append(event)
 
-    def __parse_sde_viewed_product(self, sde, engagement_id):
+    def __parse_sde_viewed_product(self, sde, engagement_id, engagement_sequence):
         if 'viewedProduct' in sde:
             vp_sde = sde['viewedProduct']
             vp_sde['sdeType'] = sde['sdeType'] if 'sdeType' in sde else None
@@ -361,8 +364,8 @@ class Engagements:
                         if 'price' in prod_item:
                             vp_sde['productPrice'] = prod_item['price']
 
-                    event = ViewedProduct.parse_from_data(data=vp_sde, engagement_id=engagement_id)
+                    event = ViewedProduct.parse_from_data(data=vp_sde, engagement_id=engagement_id, engagement_sequence=engagement_sequence)
                     self.viewed_product.append(event)
             else:
-                event = ViewedProduct.parse_from_data(data=vp_sde, engagement_id=engagement_id)
+                event = ViewedProduct.parse_from_data(data=vp_sde, engagement_id=engagement_id, engagement_sequence=engagement_sequence)
                 self.viewed_product.append(event)
