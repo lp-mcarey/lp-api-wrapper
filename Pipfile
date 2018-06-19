@@ -6,6 +6,8 @@ name = "pypi"
 [packages]
 requests = "*"
 pandas = "*"
+requests-oauthlib = "*"
+peewee = "*"
 
 [dev-packages]
 
