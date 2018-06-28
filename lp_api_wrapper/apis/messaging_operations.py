@@ -16,7 +16,9 @@ class MessagingOperations(WrapperBase):
         # Establish Base URL
         domain = self.get_domain(account_id=auth.account_id, service_name='leDataReporting')
         self.base_url = 'https://{}/operations/api/account/{}'.format(domain, auth.account_id)
-        self.ewt_base_url = 'https://{}/lp-messaging-ewt-app/api/account/{}/ewt?skills=&v='.format(domain, auth.account_id)
+
+        ewt_domain = self.get_domain(account_id=auth.account_id, service_name='msgEwtAPI')
+        self.ewt_base_url = 'https://{}/lp-messaging-ewt-app/api/account/{}'.format(ewt_domain, auth.account_id)
 
     def messaging_conversation(self, time_frame, skill_ids=None, agent_ids=None, interval=None, version=1):
         """
@@ -122,7 +124,7 @@ class MessagingOperations(WrapperBase):
             method=APIMethod.GET,
             url='{}/ewt'.format(self.ewt_base_url),
             url_parameters={
-                'v': version,
-                'skills': skill_ids
+                'skills': skill_ids,
+                'v': version
             }
         )
