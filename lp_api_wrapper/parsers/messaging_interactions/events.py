@@ -230,6 +230,16 @@ class Summary(namedtuple('Transfer', summary_columns)):
         return cls(**parse_columns(columns=summary_columns, data=data, conversation_id=conversation_id))
 
 
+
+response_time_columns = ['conversationId', 'latestEffectiveResponseDueTime', 'configuredResponseTime']
+
+
+class ResponseTime(namedtuple('ResponseTime', response_time_columns)):
+
+    @classmethod
+    def parse_from_data(cls, data, conversation_id):
+        return cls(**parse_columns(columns=response_time_columns, data=data, conversation_id=conversation_id))
+
 # -------------- #
 # Transfer Event #
 # -------------- #
