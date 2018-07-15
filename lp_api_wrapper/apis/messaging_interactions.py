@@ -66,7 +66,8 @@ class MessagingInteractions(WrapperBase):
 
         # If there are no conversations in data range, return nothing.
         if count == 0:
-            print('[MIAPI Status]: There are 0 records!')
+            if debug:
+                print('[MIAPI Status]: There are 0 records!')
             return None
 
         # Set up delivery options.
