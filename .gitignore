@@ -7,3 +7,4 @@ setup.py
 lp_api_wrapper.egg-info
 dist
 build
+test
