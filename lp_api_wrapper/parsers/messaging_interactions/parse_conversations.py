@@ -125,9 +125,18 @@ class Conversations:
     def __parse_message_record_data(self, data, conversation_id):
         for mr_data in data:
             mr_data['text'] = None
+            mr_data['richContent'] = None
+            mr_data['quickReplies'] = None
+            mr_data['rawMetadata'] = None
 
             if 'messageData' in mr_data and 'msg' in mr_data['messageData'] and 'text' in mr_data['messageData']['msg']:
                 mr_data['text'] = mr_data['messageData']['msg']['text']
+            if 'messageData' in mr_data and 'richContent' in mr_data['messageData'] and 'content' in mr_data['messageData']['richContent']:
+                mr_data['richContent'] = mr_data['messageData']['richContent']['content']
+            if 'messageData' in mr_data and 'quickReplies' in mr_data['messageData'] and 'content' in mr_data['messageData']['quickReplies']:
+                mr_data['quickReplies'] = mr_data['messageData']['quickReplies']['content']
+            if 'contextData' in mr_data and 'rawMetadata' in mr_data['contextData']:
+                mr_data['rawMetadata'] = mr_data['contextData']['rawMetadata']
 
             event = MessageRecord.parse_from_data(data=mr_data, conversation_id=conversation_id)
             self.message_records.append(event)

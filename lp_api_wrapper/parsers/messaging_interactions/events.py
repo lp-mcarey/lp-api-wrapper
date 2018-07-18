@@ -161,7 +161,7 @@ class Interaction(namedtuple('Interaction', interaction_columns)):
 
 
 message_record_columns = ['conversationId', 'device', 'dialogId', 'messageId', 'participantId', 'sentBy', 'seq',
-                          'source', 'text', 'time', 'timeL', 'type']
+                          'source', 'text', 'time', 'timeL', 'type', 'richContent','quickReplies' ,'rawMetadata']
 
 
 class MessageRecord(namedtuple('MessageRecord', message_record_columns)):
