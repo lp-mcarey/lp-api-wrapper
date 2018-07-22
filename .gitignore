@@ -8,3 +8,4 @@ lp_api_wrapper.egg-info
 dist
 build
 test
+lp_api_wrapper/own_testing

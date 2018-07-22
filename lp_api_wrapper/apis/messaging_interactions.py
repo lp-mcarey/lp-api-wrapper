@@ -1,4 +1,6 @@
 import concurrent.futures
+import math
+import re
 from lp_api_wrapper.parsers import Conversations
 from lp_api_wrapper.util.wrapper_base import WrapperBase, APIMethod
 
@@ -44,7 +46,7 @@ class MessagingInteractions(WrapperBase):
             body=body
         )
 
-    def all_conversations(self, body, max_workers=7, debug=False, parse_data=False):
+    def all_conversations(self, body, max_workers=7, debug=False, parse_data=False, debugSummary=False):
         """
         Documentation:
         https://developers.liveperson.com/data_api-messaging-interactions-conversations.html
@@ -64,11 +66,19 @@ class MessagingInteractions(WrapperBase):
         # Number of conversations in date range that was selected in the body start parameters.
         count = initial_data['_metadata']['count']
 
+        lesite = re.search('account/(.*)/conversations', self.base_url)
+
+        lesite = lesite.group(1)
+        # Max number of retrivals per call
+        limit = 100
         # If there are no conversations in data range, return nothing.
         if count == 0:
             if debug:
                 print('[MIAPI Status]: There are 0 records!')
             return None
+        else:
+            if(debugSummary):
+                print("Count=",count," reqs=",str(math.ceil(count/limit)), "workers=",max_workers, "lesite=",lesite)
 
         # Set up delivery options.
         conversations = Conversations() if parse_data else []
@@ -78,7 +88,7 @@ class MessagingInteractions(WrapperBase):
 
             # Create all future requests for the rest of the offsets in the body's data range.
             future_requests = {
-                executor.submit(self.conversations, body, offset): offset for offset in range(0, count, 100)
+                executor.submit(self.conversations, body, offset,limit): offset for offset in range(0, count, 100)
             }
 
             for future in concurrent.futures.as_completed(future_requests):
