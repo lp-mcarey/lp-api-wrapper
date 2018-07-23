@@ -67,7 +67,7 @@ class MessagingInteractions(WrapperBase):
         count = initial_data['_metadata']['count']
 
         # Retrieve site ID from URL
-        lesite = re.search('account/(.*)', self.base_url)
+        lesite = re.search('account/(.*)/conversations', self.base_url)
         lesite = lesite.group(1)
 
         # Max number of retrivals per call
