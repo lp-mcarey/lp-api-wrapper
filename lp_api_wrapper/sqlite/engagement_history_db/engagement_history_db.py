@@ -19,14 +19,14 @@ class EngagementHistoryDB:
         # Create DB and its tables.
         db.initialize_database(db_name)
 
-    def load_data_into_db(self, body, max_workers=10, debug=False):
+    def load_data_into_db(self, body, max_workers=10, debug=0):
         """
         Fetches data from the Engagement History API using the body as its parameters.
         As offsets are retrieved, the data is parsed and inserted into their respective tables.
 
         :param body: dict
         :param max_workers: int
-        :param debug: bool
+        :param debug: int (Status of API requets: 1=full, 2=summary, default=0)
         """
 
         # Create EHAPI connection.
@@ -59,7 +59,7 @@ class EngagementHistoryDB:
                 # Insert Records into DB.
                 self.__insert_engagement_records(engagements=e)
 
-                if debug:
+                if debug == 1:
                     start_rows = future_requests[future]
                     end_rows = future_requests[future] + 100
                     print('[EH DB Status]: Inserted {}-{} rows of {}'.format(start_rows, end_rows, count))

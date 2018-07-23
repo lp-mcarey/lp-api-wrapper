@@ -18,7 +18,7 @@ start_to = int(datetime.now().timestamp() * 1000)
 body = {'start': {'from': start_from, 'to': start_to}}
 
 # Get data!
-engagements = eh_conn.all_engagements(body=body, debug=True, parse_data=True)
+engagements = eh_conn.all_engagements(body=body, debug=1, parse_data=True)
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
 # All available Engagement Events into Pandas DataFrames #

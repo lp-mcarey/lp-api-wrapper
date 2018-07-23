@@ -22,7 +22,7 @@ start_to = int(datetime.now().timestamp() * 1000)
 body = {'start': {'from': start_from, 'to': start_to}}
 
 # Get data!
-conversations = mi_conn.all_conversations(body=body, debug=True, parse_data=True)
+conversations = mi_conn.all_conversations(body=body, debug=1, parse_data=True)
 
 # Convert into Pandas DataFrame
 df = pd.DataFrame(conversations.message_records)
