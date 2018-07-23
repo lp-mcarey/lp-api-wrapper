@@ -55,7 +55,7 @@ class MessagingInteractions(WrapperBase):
 
         :param body: dict <Required>
         :param max_workers: int (Max # of concurrent requests)
-        :param debug: int (Status of API requets: 1=full, 2=summary, default=0)
+        :param debug: int (Status of API requests: 1=full, 2=summary, default=0)
         :param parse_data: bool (Returns a parsed Engagements data object.)
         :return List of conversations history records as decoded JSON data
         """

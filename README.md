@@ -127,7 +127,7 @@ Note!
 Arguments:
 * body: dict (Note: Check reference for details.)
 * max_workers: int (Max number of API requests at a time. Default:7)
-* debug: int (Status of API requets: 1=full, 2=summary, default=0)
+* debug: int (Status of API requests: 1=full, 2=summary, default=0)
 * parse_data: bool (Parses data and returns a Conversations data object. Default: False)
 
 ```python
@@ -193,7 +193,7 @@ Note!
 Arguments:
 * body: dict (Note: Check reference for details.)
 * max_workers: int (Max number of API requests at a time. Default:7)
-* debug: int (Status of API requets: 1=full, 2=summary, default=0)
+* debug: int (Status of API requests: 1=full, 2=summary, default=0)
 * parse_data: bool (Parses data and returns an Engagements data object. Default: False)
 
 ```python

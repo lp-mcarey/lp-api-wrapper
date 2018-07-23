@@ -26,7 +26,7 @@ class MessagingInteractionsDB:
 
         :param body: dict
         :param max_workers: int
-        :param debug: int (Status of API requets: 1=full, 2=summary, default=0)
+        :param debug: int (Status of API requests: 1=full, 2=summary, default=0)
         """
 
         # Create MIAPI connection.
