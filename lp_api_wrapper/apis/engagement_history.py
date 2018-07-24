@@ -90,7 +90,7 @@ class EngagementHistory(WrapperBase):
 
             # Create all future requests for the rest of the offsets in the body's data range.
             future_requests = {
-                executor.submit(self.engagements, body, offset): offset for offset in range(0, count, 100)
+                executor.submit(self.engagements, body, offset, limit): offset for offset in range(0, count, 100)
             }
 
             for future in concurrent.futures.as_completed(future_requests):
