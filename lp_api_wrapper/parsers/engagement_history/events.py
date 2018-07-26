@@ -234,7 +234,7 @@ class ServiceActivity(namedtuple('ServiceActivity', service_activity_columns)):
 
 
 survey_columns = ['engagementId', 'engagementSequence', 'displayName', 'name', 'questionID', 'scope', 'source', 'surveyID', 'surveyType',
-                  'time', 'timeL', 'value']
+                  'time', 'timeL', 'value', 'values']
 
 
 class Survey(namedtuple('Survey', survey_columns)):
