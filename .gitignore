@@ -1,5 +1,11 @@
+.idea/*
+.DS_Store
+__pycache__ 
 .pypirc
 setup.cfg
 setup.py
 lp_api_wrapper.egg-info
 dist
+build
+test
+lp_api_wrapper/own_testing

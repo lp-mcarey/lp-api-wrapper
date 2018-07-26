@@ -1,13 +1,13 @@
 from lp_api_wrapper.parsers.messaging_interactions.events import (
     AgentParticipant, Campaign, CoBrowseSession, ConsumerParticipant, ConversationSurvey, CustomerInfo, Info,
-    Interaction, MessageRecord, MessageScore, MessageStatus, PersonalInfo, Summary, Transfer
+    Interaction, MessageRecord, MessageScore, MessageStatus, PersonalInfo, Summary, Transfer, ResponseTime
 )
 
 
 class Conversations:
     __slots__ = ['agent_participants', 'campaign', 'cobrowse_sessions', 'consumer_participants', 'conversation_surveys',
                  'customer_info', 'info', 'interactions', 'message_records', 'message_scores', 'message_statuses',
-                 'personal_info', 'summary', 'transfers']
+                 'personal_info', 'summary', 'transfers', 'responseTime']
 
     def __init__(self):
         self.agent_participants = []
@@ -24,6 +24,7 @@ class Conversations:
         self.personal_info = []
         self.summary = []
         self.transfers = []
+        self.responseTime = []
 
     def append_records(self, records):
         for record in records:
@@ -59,6 +60,8 @@ class Conversations:
                     self.__parse_transfer_data(data=data, conversation_id=conversation_id)
                 elif 'sdes' in event and 'events' in data and data['events']:
                     self.__parse_sde_data(data=data['events'], conversation_id=conversation_id)
+                elif 'responseTime' in event:
+                    self.__parse_responseTime(data=data, conversation_id=conversation_id)
 
     def __parse_agent_participant_data(self, data, conversation_id):
         for ap_data in data:
@@ -122,9 +125,18 @@ class Conversations:
     def __parse_message_record_data(self, data, conversation_id):
         for mr_data in data:
             mr_data['text'] = None
+            mr_data['richContent'] = None
+            mr_data['quickReplies'] = None
+            mr_data['rawMetadata'] = None
 
             if 'messageData' in mr_data and 'msg' in mr_data['messageData'] and 'text' in mr_data['messageData']['msg']:
                 mr_data['text'] = mr_data['messageData']['msg']['text']
+            if 'messageData' in mr_data and 'richContent' in mr_data['messageData'] and 'content' in mr_data['messageData']['richContent']:
+                mr_data['richContent'] = mr_data['messageData']['richContent']['content']
+            if 'messageData' in mr_data and 'quickReplies' in mr_data['messageData'] and 'content' in mr_data['messageData']['quickReplies']:
+                mr_data['quickReplies'] = mr_data['messageData']['quickReplies']['content']
+            if 'contextData' in mr_data and 'rawMetadata' in mr_data['contextData']:
+                mr_data['rawMetadata'] = mr_data['contextData']['rawMetadata']
 
             event = MessageRecord.parse_from_data(data=mr_data, conversation_id=conversation_id)
             self.message_records.append(event)
@@ -216,3 +228,7 @@ class Conversations:
             else:
                 event = PersonalInfo.parse_from_data(data=pi_sde, conversation_id=conversation_id)
                 self.personal_info.append(event)
+
+    def __parse_responseTime(self, data, conversation_id):
+        event = ResponseTime.parse_from_data(data=data, conversation_id=conversation_id)
+        self.responseTime.append(event)

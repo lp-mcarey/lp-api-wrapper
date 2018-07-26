@@ -13,7 +13,7 @@ start_to = int(datetime.now().timestamp() * 1000)
 body = {'start': {'from': start_from, 'to': start_to}}
 
 # Load data into SQLite DB.
-eh_db.load_data_into_db(body, debug=True)
+eh_db.load_data_into_db(body, debug=1)
 
 sql = """
 select * from info;

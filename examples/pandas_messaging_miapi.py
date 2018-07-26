@@ -18,7 +18,7 @@ start_to = int(datetime.now().timestamp() * 1000)
 body = {'start': {'from': start_from, 'to': start_to}}
 
 # Get data!
-conversations = mi_conn.all_conversations(body=body, debug=True, parse_data=True)
+conversations = mi_conn.all_conversations(body=body, debug=1, parse_data=True)
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
 # All available Messaging Events into Pandas DataFrames #
@@ -41,6 +41,9 @@ cobrowse_session_df = pd.DataFrame(conversations.cobrowse_sessions)
 summary_df = pd.DataFrame(conversations.summary)
 customer_info_df = pd.DataFrame(conversations.customer_info)
 personal_info_df = pd.DataFrame(conversations.personal_info)
+response_time_df = pd.DataFrame(conversations.responseTime)
+
+
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
 # Example showing all human agent transcripts #
@@ -54,5 +57,5 @@ mr_with_agent_df = pd.merge(
     right_on=['conversationId', 'agentId']
 )
 
-# No BOT uprisings here!
+#  No BOT uprisings here!
 mr_human_agents_df = mr_with_agent_df.loc[mr_with_agent_df['userTypeName'] == 'Human']

@@ -1,4 +1,6 @@
 import concurrent.futures
+import math
+import re
 from lp_api_wrapper.parsers import Conversations
 from lp_api_wrapper.util.wrapper_base import WrapperBase, APIMethod
 
@@ -44,7 +46,7 @@ class MessagingInteractions(WrapperBase):
             body=body
         )
 
-    def all_conversations(self, body, max_workers=7, debug=False, parse_data=False):
+    def all_conversations(self, body, max_workers=7, debug=0, parse_data=False):
         """
         Documentation:
         https://developers.liveperson.com/data_api-messaging-interactions-conversations.html
@@ -53,7 +55,7 @@ class MessagingInteractions(WrapperBase):
 
         :param body: dict <Required>
         :param max_workers: int (Max # of concurrent requests)
-        :param debug: bool (Prints data collection process.)
+        :param debug: int (Status of API requests: 1=full, 2=summary, default=0)
         :param parse_data: bool (Returns a parsed Engagements data object.)
         :return List of conversations history records as decoded JSON data
         """
@@ -64,10 +66,21 @@ class MessagingInteractions(WrapperBase):
         # Number of conversations in date range that was selected in the body start parameters.
         count = initial_data['_metadata']['count']
 
+        # Retrieve site ID from URL
+        lesite = re.search('account/(.*)/conversations', self.base_url)
+        lesite = lesite.group(1)
+
+        # Max number of retrivals per call
+        limit = 100
+
         # If there are no conversations in data range, return nothing.
         if count == 0:
-            print('[MIAPI Status]: There are 0 records!')
+            if debug == 1:
+                print('[MIAPI Status]: There are 0 records!')
             return None
+        else:
+            if debug >= 1:
+                print('[MIAPI Summary]: count=%s reqs=%s workers=%s leSite=%s' % (count, math.ceil(count/limit), max_workers, lesite))
 
         # Set up delivery options.
         conversations = Conversations() if parse_data else []
@@ -77,12 +90,12 @@ class MessagingInteractions(WrapperBase):
 
             # Create all future requests for the rest of the offsets in the body's data range.
             future_requests = {
-                executor.submit(self.conversations, body, offset): offset for offset in range(0, count, 100)
+                executor.submit(self.conversations, body, offset,limit): offset for offset in range(0, count, 100)
             }
 
             for future in concurrent.futures.as_completed(future_requests):
 
-                if debug:
+                if debug == 1:
                     print('[MIAPI Offset Status]: {} of {} records completed!'.format(future_requests[future], count))
 
                 # Grab dict with 'conversationHistoryRecords' from the request.  Removing any '_metadata' info.

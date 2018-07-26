@@ -127,7 +127,7 @@ Note!
 Arguments:
 * body: dict (Note: Check reference for details.)
 * max_workers: int (Max number of API requests at a time. Default:7)
-* debug: bool (Prints status of API requests.  Default: False)
+* debug: int (Status of API requests: 1=full, 2=summary, default=0)
 * parse_data: bool (Parses data and returns a Conversations data object. Default: False)
 
 ```python
@@ -193,7 +193,7 @@ Note!
 Arguments:
 * body: dict (Note: Check reference for details.)
 * max_workers: int (Max number of API requests at a time. Default:7)
-* debug: bool (Prints status of API requests.  Default: False)
+* debug: int (Status of API requests: 1=full, 2=summary, default=0)
 * parse_data: bool (Parses data and returns an Engagements data object. Default: False)
 
 ```python
@@ -308,6 +308,19 @@ Arguments:
 
 ```python
 data = mo_conn.messaging_csat_distribution(time_frame=1440)
+```
+
+
+#### 5. Messaging Estimated Wait Time
+Documentation
+* https://developers.liveperson.com/data-messaging-operations-messaging-estimated-wait-time.html
+
+Arguments:
+* skill_ids: str (Default: None)
+* version: int (Default: 1)
+
+```python
+data = mo_conn.messaging_estimated_wait_time()
 ```
 
 ## Operational Realtime API
