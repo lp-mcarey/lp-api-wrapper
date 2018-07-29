@@ -109,6 +109,80 @@ class MessagingInteractions(WrapperBase):
 
         return conversations
 
+    def all_conversations_by_chunks(self, body, max_workers=7, debug=0, parse_data=False):
+        """
+        Documentation:
+        https://developers.liveperson.com/data_api-messaging-interactions-conversations.html
+
+        * Returns all offsets of data within start time range *
+
+        :param body: dict <Required>
+        :param max_workers: int (Max # of concurrent requests)
+        :param debug: int (Status of API requests: 1=full, 2=summary, default=0)
+        :param parse_data: bool (Returns a parsed Engagements data object.)
+        :return List of conversations history records as decoded JSON data
+        """
+
+        # Grab first offset of data.
+        initial_data = self.conversations(body=body, offset=0)
+
+        # Number of conversations in date range that was selected in the body start parameters.
+        count = initial_data['_metadata']['count']
+
+        # Retrieve site ID from URL
+        lesite = re.search('account/(.*)/conversations', self.base_url)
+        lesite = lesite.group(1)
+
+        # Max number of retrivals per call
+        limit_per_call = 100
+
+        # If there are no conversations in data range, return nothing.
+        if count == 0:
+            if debug == 1:
+                print('[MIAPI Status]: There are 0 records!')
+            return None
+        else:
+            if debug >= 1:
+                print('[MIAPI Summary]: count=%s reqs=%s workers=%s leSite=%s' % (count, math.ceil(count/limit_per_call), max_workers, lesite))
+            chunk_size = 120
+            chunk_offset = 0
+            offset = 0
+            chunks = math.ceil(count/chunk_size)
+
+        # Set up delivery options.
+        for iterat in range(1, chunks + 1):
+            conversations = Conversations() if parse_data else []
+            future_requests = {}
+            with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
+
+                list_offset = range(chunk_offset, chunk_offset + chunk_size, limit_per_call)
+                for elem in list_offset:
+                    if(elem <= count):
+                        if (elem + limit_per_call > chunk_offset + chunk_size):
+                            limit_per_call = chunk_size - limit_per_call
+                        future_requests[executor.submit(self.conversations, body, offset, limit_per_call)] = offset
+                        print("offset: ", offset, " limit: ", limit_per_call)
+                        offset = offset + limit_per_call
+
+
+                for future in concurrent.futures.as_completed(future_requests):
+
+                    if debug == 1:
+                        print('[MIAPI Offset Status]: {} of {} records completed!'.format(future_requests[future], count))
+
+                    # Grab dict with 'conversationHistoryRecords' from the request.  Removing any '_metadata' info.
+                    records = future.result()['conversationHistoryRecords']
+
+                    # Store results.
+                    if parse_data:
+                        conversations.append_records(records=[record for record in records])
+                    else:
+                        conversations.extend([record for record in records])
+
+                limit_per_call = 100
+                chunk_offset = chunk_offset + chunk_size
+            yield conversations
+
     def get_conversation_by_conversation_id(self, conversation_id):
         """
         Documentation:
