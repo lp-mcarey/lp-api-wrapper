@@ -1,5 +1,5 @@
 from lp_api_wrapper.apis import (
-    AgentMetrics, EngagementHistory, MessagingInteractions, MessagingOperations, OperationalRealtime,
+    AdminUsers, AgentMetrics, EngagementHistory, MessagingInteractions, MessagingOperations, OperationalRealtime,
     PredefinedCategories, PredefinedContent
 )
 from lp_api_wrapper.logins import UserLogin, OAuthLogin

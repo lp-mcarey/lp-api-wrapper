@@ -1,3 +1,4 @@
+from lp_api_wrapper.apis.admin_users import AdminUsers
 from lp_api_wrapper.apis.agent_metrics import AgentMetrics
 from lp_api_wrapper.apis.engagement_history import EngagementHistory
 from lp_api_wrapper.apis.messaging_interactions import MessagingInteractions
