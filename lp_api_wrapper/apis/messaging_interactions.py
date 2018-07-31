@@ -144,7 +144,7 @@ class MessagingInteractions(WrapperBase):
         else:
             if debug >= 1:
                 print('[MIAPI Summary]: count=%s reqs=%s workers=%s leSite=%s' % (count, math.ceil(count/limit_per_call), max_workers, lesite))
-            chunk_size = 120 # MUST be greater than the limit_per_call
+            chunk_size = 500 # MUST be greater than the limit_per_call
             chunk_offset = 0
             offset = 0
             chunks = math.ceil(count/chunk_size)
@@ -157,11 +157,12 @@ class MessagingInteractions(WrapperBase):
             with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
 
                 # First iteration: chunk_offset =0 , chunk_offset + chunk_size = 150 , limit_per_call=100,  list_offset = [0,100]
+                # Second iteration:  chunk_offset =150 , chunk_offset + chunk_size = 300 , limit_per_call=100,  list_offset = [150,300]
                 # Fourth iteration: list_offset = [450,600]
                 list_offset = range(chunk_offset, chunk_offset + chunk_size, limit_per_call)
                 for elem in list_offset:
-                    if(elem <= count): # If the element is greater than the total count we dont need to count
-                        if (elem + limit_per_call > chunk_offset + chunk_size): # For fourth iteration: 450 + 100 > 450 + 150
+                    if(elem < count): # If the element is greater than the total count we dont need to count
+                        if (elem + limit_per_call > chunk_offset + chunk_size): # # For second iteration, second element: 300 + 100 > 150 + 150; For fourth iteration, second element: 600 + 100 > 450 + 150
                             limit_per_call = chunk_size - limit_per_call # 150 - 100 = 50 
                         future_requests[executor.submit(self.conversations, body, offset, limit_per_call)] = offset
                         print("offset: ", offset, " limit: ", limit_per_call)
