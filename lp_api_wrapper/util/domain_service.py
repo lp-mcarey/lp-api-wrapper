@@ -4,7 +4,7 @@ import requests
 class DomainService:
 
     @staticmethod
-    def get_domain(account_id, service_name, version="1.0"):
+    def get_domain(account_id, service_name):
         """
         Documentation:
         https://developers.liveperson.com/agent-domain-domain-api.html
@@ -16,10 +16,9 @@ class DomainService:
 
         # Generate request
         r = requests.get(
-            url='http://api.liveperson.net/api/account/{}/service/{}/baseURI.json?version={}'.format(
+            url='http://api.liveperson.net/api/account/{}/service/{}/baseURI.json?version=1.0'.format(
                 account_id,
-                service_name,
-                version
+                service_name
             )
         )
 
