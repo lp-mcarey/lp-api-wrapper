@@ -1,13 +1,13 @@
 from lp_api_wrapper.parsers.messaging_interactions.events import (
     AgentParticipant, Campaign, CoBrowseSession, ConsumerParticipant, ConversationSurvey, CustomerInfo, Info,
-    Interaction, MessageRecord, MessageScore, MessageStatus, PersonalInfo, Summary, Transfer, ResponseTime
+    Interaction, MessageRecord, MessageScore, MessageStatus, PersonalInfo, Summary, Transfer, ResponseTime,Monitoring
 )
 
 
 class Conversations:
     __slots__ = ['agent_participants', 'campaign', 'cobrowse_sessions', 'consumer_participants', 'conversation_surveys',
                  'customer_info', 'info', 'interactions', 'message_records', 'message_scores', 'message_statuses',
-                 'personal_info', 'summary', 'transfers', 'responseTime']
+                 'personal_info', 'summary', 'transfers', 'responseTime', 'monitoring']
 
     def __init__(self):
         self.agent_participants = []
@@ -25,6 +25,7 @@ class Conversations:
         self.summary = []
         self.transfers = []
         self.responseTime = []
+        self.monitoring = []
 
     def append_records(self, records):
         for record in records:
@@ -62,6 +63,8 @@ class Conversations:
                     self.__parse_sde_data(data=data['events'], conversation_id=conversation_id)
                 elif 'responseTime' in event:
                     self.__parse_responseTime(data=data, conversation_id=conversation_id)
+                elif 'monitoring' in event:
+                    self.__parse_monitoring(data=data, conversation_id=conversation_id)
 
     def __parse_agent_participant_data(self, data, conversation_id):
         for ap_data in data:
@@ -232,3 +235,7 @@ class Conversations:
     def __parse_responseTime(self, data, conversation_id):
         event = ResponseTime.parse_from_data(data=data, conversation_id=conversation_id)
         self.responseTime.append(event)
+
+    def __parse_monitoring(self, data, conversation_id):
+        event = Monitoring.parse_from_data(data=data,conversation_id=conversation_id)
+        self.monitoring.append(event)

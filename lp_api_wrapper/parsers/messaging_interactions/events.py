@@ -256,3 +256,18 @@ class Transfer(namedtuple('Transfer', transfer_columns)):
     @classmethod
     def parse_from_data(cls, data, conversation_id):
         return cls(**parse_columns(columns=transfer_columns, data=data, conversation_id=conversation_id))
+
+
+# ---------- #
+# Monitoring #
+# ---------- #
+
+
+monitoring_columns = ['conversationId','country','countryCode','state','city','isp','org','device','ipAddress',
+                      'browser','operatingSystem','conversationStartPage','conversationStartPageTitle']
+
+
+class Monitoring(namedtuple('Monitoring', monitoring_columns)):
+    @classmethod
+    def parse_from_data(cls, data,conversation_id):
+        return cls(**parse_columns(columns=monitoring_columns, data=data, conversation_id=conversation_id))

@@ -13,12 +13,12 @@ class MessagingInteractions(WrapperBase):
     https://developers.liveperson.com/data-messaging-interactions-overview.html
     """
 
-    def __init__(self, auth):
+    def __init__(self, auth, version="1.0"):
 
         super().__init__(auth=auth)
 
         # Establish Base URL
-        domain = self.get_domain(account_id=auth.account_id, service_name='msgHist')
+        domain = self.get_domain(account_id=auth.account_id, service_name='msgHist',version=version)
         self.base_url = 'https://{}/messaging_history/api/account/{}/conversations'.format(domain, auth.account_id)
 
     def conversations(self, body, offset=0, limit=100, sort=None):
