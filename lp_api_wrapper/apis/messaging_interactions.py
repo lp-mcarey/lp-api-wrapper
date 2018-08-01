@@ -13,7 +13,7 @@ class MessagingInteractions(WrapperBase):
     https://developers.liveperson.com/data-messaging-interactions-overview.html
     """
 
-    def __init__(self, auth,version="1.0"):
+    def __init__(self, auth,version="1"):
 
         super().__init__(auth=auth)
 
@@ -43,7 +43,7 @@ class MessagingInteractions(WrapperBase):
                 'offset': offset,
                 'limit': limit,
                 'sort': sort,
-                'version':self.version
+                'v':self.version
             },
             body=body
         )
@@ -159,15 +159,14 @@ class MessagingInteractions(WrapperBase):
             with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
 
                 # First iteration: chunk_offset =0 , chunk_offset + chunk_size = 150 , limit_per_call=100,  list_offset = [0,100]
-                # Second iteration:  chunk_offset =150 , chunk_offset + chunk_size = 300 , limit_per_call=100,  list_offset = [150,300]
+                # Second iteration:  chunk_offset =150 , chunk_offset + chunk_size = 300 , limit_per_call=100,  list_offset = [150,250]
                 # Fourth iteration: list_offset = [450,600]
                 list_offset = range(chunk_offset, chunk_offset + chunk_size, limit_per_call)
                 for elem in list_offset:
-                    if(elem < count): # If the element is greater than the total count we dont need to count
-                        if (elem + limit_per_call > chunk_offset + chunk_size): # # For second iteration, second element: 300 + 100 > 150 + 150; For fourth iteration, second element: 600 + 100 > 450 + 150
+                    if(elem < count): # If the element is greater than the total count, we dont need to make a call starting with that offset
+                        if (elem + limit_per_call > chunk_offset + chunk_size):  # For second iteration, second element: 250 + 100 > 150 + 150; For fourth iteration, second element: won't pass previous if
                             limit_per_call = chunk_size - limit_per_call # 150 - 100 = 50 
                         future_requests[executor.submit(self.conversations, body, offset, limit_per_call)] = offset
-                        print("offset: ", offset, " limit: ", limit_per_call)
                         offset = offset + limit_per_call
 
 
