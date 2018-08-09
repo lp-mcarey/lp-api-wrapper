@@ -9,7 +9,7 @@ class AdminUsers(WrapperBase):
     https://developers.liveperson.com/administration-users-overview.html
     """
 
-    def __init__(self, auth, access='r'):
+    def __init__(self, auth, access='r', company=None, source="LPApiWrapper"):
 
         super().__init__(auth=auth)
 
@@ -24,6 +24,8 @@ class AdminUsers(WrapperBase):
         domain = self.get_domain(account_id=auth.account_id, service_name=service_name)
         self.version = '4.0'
         self.base_url = 'https://{}/api/account/{}/configuration/le-users/users'.format(domain, auth.account_id)
+        self.company = company
+        self.source = source
 
 
     def all_users(self, select='id,pid,deleted,loginName', include_deleted=False):
@@ -41,7 +43,9 @@ class AdminUsers(WrapperBase):
             url='{}?v={}'.format(self.base_url, self.version),
             url_parameters={
                 'select': select,
-                'include_deleted': include_deleted
+                'include_deleted': include_deleted,
+                'company': self.company,
+                'source': self.source
             }
         )
 

@@ -13,7 +13,7 @@ class MessagingInteractions(WrapperBase):
     https://developers.liveperson.com/data-messaging-interactions-overview.html
     """
 
-    def __init__(self, auth,version="1"):
+    def __init__(self, auth,version="1", company=None, source="LPApiWrapper"):
 
         super().__init__(auth=auth)
 
@@ -21,6 +21,8 @@ class MessagingInteractions(WrapperBase):
         domain = self.get_domain(account_id=auth.account_id, service_name='msgHist')
         self.base_url = 'https://{}/messaging_history/api/account/{}/conversations'.format(domain, auth.account_id)
         self.version = version
+        self.company = company
+        self.source = source
 
     def conversations(self, body, offset=0, limit=100, sort=None):
         """
@@ -43,7 +45,9 @@ class MessagingInteractions(WrapperBase):
                 'offset': offset,
                 'limit': limit,
                 'sort': sort,
-                'v':self.version
+                'v':self.version,
+                'company':self.company,
+                'source':self.source
             },
             body=body
         )

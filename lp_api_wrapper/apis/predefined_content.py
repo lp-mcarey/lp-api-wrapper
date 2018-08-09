@@ -9,13 +9,15 @@ class PredefinedContent(WrapperBase):
     https://developers.liveperson.com/account-configuration-categories-introduction.html
     """
 
-    def __init__(self, auth):
+    def __init__(self, auth, company=None, source="LPApiWrapper"):
 
         super().__init__(auth=auth)
 
         # Establish Base URL
         domain = self.get_domain(account_id=auth.account_id, service_name='accountConfigReadWrite')
         self.base_url = 'https://{}/api/account/{}/configuration'.format(domain, auth.account_id)
+        self.company = company
+        self.source = source
 
     def get_predefined_content_items(self, include_deleted=None, sanitize_data=None, lang=None, select=None,
                                      group_by=None, skill_ids=None, ids=None, version=2.0):
@@ -46,6 +48,8 @@ class PredefinedContent(WrapperBase):
                 'group_by': group_by,
                 'skill_ids': skill_ids,
                 'ids': ids,
-                'v': version
+                'v': version,
+                'company': self.company,
+                'source': self.source
             }
         )
