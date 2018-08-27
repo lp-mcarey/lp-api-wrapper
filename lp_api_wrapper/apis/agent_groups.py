@@ -1,7 +1,7 @@
 from lp_api_wrapper.util.wrapper_base import WrapperBase, APIMethod
 
 
-class AdminUsers(WrapperBase):
+class AgentGroups(WrapperBase):
     """
     Python Wrapper for the LivePerson Users API.
 
@@ -23,17 +23,16 @@ class AdminUsers(WrapperBase):
 
         domain = self.get_domain(account_id=auth.account_id, service_name=service_name)
         self.version = '4.0'
-        self.base_url = 'https://{}/api/account/{}/configuration/le-users/users'.format(domain, auth.account_id)
+        self.base_url = 'https://{}/api/account/{}/configuration/le-users/agentGroups'.format(domain, auth.account_id)
         self.company = company
         self.source = source
 
 
-    def all_users(self, select='id,pid,deleted,loginName', include_deleted=False):
+    def all_agent_groups(self, include_deleted=False):
         """
         Documentation:
-        https://developers.liveperson.com/administration-get-all-users.html
+        https://developers.liveperson.com/administration-get-all-agent-groups.html
 
-        :param select: YOGA 'gdata' dialect.
         :param include_deleted: Boolean
         :return Decoded JSON data
         """
@@ -42,30 +41,22 @@ class AdminUsers(WrapperBase):
             method=APIMethod.GET,
             url='{}?v={}'.format(self.base_url, self.version),
             url_parameters={
-                'select': select,
                 'include_deleted': include_deleted,
                 'company': self.company,
                 'source': self.source
             }
         )
 
-    def get_user_by_id(self, user_id, select='id,pid,deleted,userTypeId,isApiUser,email,loginName,nickname,fullName,'
-                                             'employeeId,isEnabled,maxChats,maxAsyncChats,skillIds,'
-                                             'memberOf(agentGroupId,assignmentDate),'
-                                             'managerOf(agentGroupId,assignmentDate),profileIds,lobIds'):
+    def get_group_by_id(self, group_id):
         """
         Documentation:
         https://developers.liveperson.com/administration-get-user-by-id.html
 
-        :param select: YOGA 'gdata' dialect.
-        :param user_id: Positive long number greater than zero
+        :param group_id: Positive long number greater than zero
         :return Decoded JSON data
         """
 
         return self.process_request(
             method=APIMethod.GET,
-            url='{}/{}?v={}'.format(self.base_url, user_id, self.version),
-            url_parameters={
-                'select': select
-            }
+            url='{}/{}?v={}'.format(self.base_url, group_id, self.version)
         )
