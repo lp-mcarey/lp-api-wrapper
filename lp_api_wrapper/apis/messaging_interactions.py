@@ -115,6 +115,33 @@ class MessagingInteractions(WrapperBase):
 
         return conversations
 
+    def all_conversations_full(self, body, max_workers=7, debug=0, parse_data=False):
+        conversations = self.all_conversations(body, max_workers=max_workers, debug=debug, parse_data=parse_data)
+        partial_conversations =set([])
+        if(conversations is not None):
+            if(parse_data == True):
+                # Step 1) Remove all the conversations that are partial
+                for conv in conversations.info:
+                    if(conv.isPartial):
+                        partial_conversations.add(conv.conversationId)
+                #events = ['agent_participants', 'campaign', 'cobrowse_sessions', 'consumer_participants', 'conversation_surveys', 'customer_info', 'info',.......]
+                events = [a for a in dir(conversations) if not a.startswith('__') and not callable(getattr(conversations,a)) and isinstance(getattr(conversations,a),list)]
+                for ev in events:
+                    list_event = getattr(conversations, ev)
+                    full_event = [x for x in list_event if x.conversationId not in partial_conversations]
+                    setattr(conversations, ev ,full_event)
+                with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
+                    # Create all future requests for the rest of the offsets in the body's data range.
+                    future_requests = {
+                        executor.submit(self.get_conversation_by_conversation_id, conversation_id) : conversation_id for conversation_id in partial_conversations
+                    }
+                    for future in concurrent.futures.as_completed(future_requests):
+                        records = future.result()['conversationHistoryRecords']
+                        conversations.append_records(records=[record for record in records])
+            else:
+                pass
+        return conversations
+
     def all_conversations_by_chunks(self, body, max_workers=7, debug=0, parse_data=False):
         """
         Documentation:
