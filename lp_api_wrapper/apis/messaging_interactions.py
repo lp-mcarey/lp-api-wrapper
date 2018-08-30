@@ -13,7 +13,7 @@ class MessagingInteractions(WrapperBase):
     https://developers.liveperson.com/data-messaging-interactions-overview.html
     """
 
-    def __init__(self, auth,version="1"):
+    def __init__(self, auth,version="1", company=None, source="LPApiWrapper"):
 
         super().__init__(auth=auth)
 
@@ -21,6 +21,8 @@ class MessagingInteractions(WrapperBase):
         domain = self.get_domain(account_id=auth.account_id, service_name='msgHist')
         self.base_url = 'https://{}/messaging_history/api/account/{}/conversations'.format(domain, auth.account_id)
         self.version = version
+        self.company = company
+        self.source = source
 
     def conversations(self, body, offset=0, limit=100, sort=None):
         """
@@ -43,7 +45,9 @@ class MessagingInteractions(WrapperBase):
                 'offset': offset,
                 'limit': limit,
                 'sort': sort,
-                'v':self.version
+                'v':self.version,
+                'company':self.company,
+                'source':self.source
             },
             body=body
         )
@@ -108,6 +112,41 @@ class MessagingInteractions(WrapperBase):
                     conversations.append_records(records=[record for record in records])
                 else:
                     conversations.extend([record for record in records])
+
+        return conversations
+
+    def all_conversations_full(self, body, max_workers=7, debug=0, parse_data=False):
+        conversations = self.all_conversations(body, max_workers=max_workers, debug=debug, parse_data=parse_data)
+        partial_conversations =set([])
+        if(conversations is not None):
+            # Step 1) Remove all the conversations that are partial
+            if(parse_data == True):
+                for conv in conversations.info:
+                    if(conv.isPartial):
+                        partial_conversations.add(conv.conversationId)
+                #E.g: events = ['agent_participants', 'campaign', 'cobrowse_sessions', 'consumer_participants', 'conversation_surveys', 'customer_info', 'info',.......]
+                events = [a for a in dir(conversations) if not a.startswith('__') and not callable(getattr(conversations, a)) and isinstance(getattr(conversations, a), list)]
+                for ev in events:
+                    list_event = getattr(conversations, ev)
+                    full_event = [x for x in list_event if x.conversationId not in partial_conversations]
+                    setattr(conversations, ev, full_event)
+            else:
+                for conv in conversations:
+                    if(conv['info']['isPartial'] == True):
+                        partial_conversations.add(conv['info']['conversationId'])
+                conversations = [x for x in conversations if x['info']['conversationId'] not in partial_conversations]
+            # Step 2) Retrieve the conversations that were partial again but individually
+            with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
+                # Create all future requests for the conversations that were originally partially complete.
+                future_requests = {
+                    executor.submit(self.get_conversation_by_conversation_id, conversation_id) : conversation_id for conversation_id in partial_conversations
+                }
+                for future in concurrent.futures.as_completed(future_requests):
+                    records = future.result()['conversationHistoryRecords']
+                    if (parse_data == True):
+                        conversations.append_records(records=[record for record in records])
+                    else:
+                        conversations.extend([record for record in records])
 
         return conversations
 

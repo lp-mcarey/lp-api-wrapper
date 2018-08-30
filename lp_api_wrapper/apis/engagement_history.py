@@ -13,13 +13,15 @@ class EngagementHistory(WrapperBase):
     https://developers.liveperson.com/data-engagement-history-methods.html
     """
 
-    def __init__(self, auth):
+    def __init__(self, auth, company=None, source="LPApiWrapper"):
 
         super().__init__(auth=auth)
 
         # Establish Base URL
         domain = self.get_domain(account_id=auth.account_id, service_name='engHistDomain')
         self.base_url = 'https://{}/interaction_history/api/account/{}'.format(domain, auth.account_id)
+        self.company = company
+        self.source = source
 
     def engagements(self, body, offset=0, limit=100, sort=None):
         """
@@ -41,7 +43,9 @@ class EngagementHistory(WrapperBase):
             url_parameters={
                 'offset': offset,
                 'limit': limit,
-                'sort': sort
+                'sort': sort,
+                'company': self.company,
+                'source': self.source
             },
             body=body
         )

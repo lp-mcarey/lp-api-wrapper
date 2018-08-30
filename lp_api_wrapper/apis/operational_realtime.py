@@ -9,13 +9,15 @@ class OperationalRealtime(WrapperBase):
     https://developers.liveperson.com/data-operational-realtime-overview.html
     """
 
-    def __init__(self, auth):
+    def __init__(self, auth, company=None, source="LPApiWrapper"):
 
         super().__init__(auth=auth)
 
         # Establish Base URL
         domain = self.get_domain(account_id=auth.account_id, service_name='leDataReporting')
         self.base_url = 'https://{}/operations/api/account/{}'.format(domain, auth.account_id)
+        self.company = company
+        self.source = source
 
     def queue_health(self, time_frame, skill_ids=None, interval=None, version=1):
         """
@@ -38,7 +40,9 @@ class OperationalRealtime(WrapperBase):
                 'timeframe': time_frame,
                 'v': version,
                 'skillIds': skill_ids,
-                'interval': interval
+                'interval': interval,
+                'company': self.company,
+                'source': self.source
             }
         )
 

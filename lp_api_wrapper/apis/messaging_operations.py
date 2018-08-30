@@ -9,7 +9,7 @@ class MessagingOperations(WrapperBase):
     https://developers.liveperson.com/data-messaging-operations-overview.html
     """
 
-    def __init__(self, auth):
+    def __init__(self, auth, company=None, source="LPApiWrapper"):
 
         super().__init__(auth=auth)
 
@@ -19,6 +19,8 @@ class MessagingOperations(WrapperBase):
 
         ewt_domain = self.get_domain(account_id=auth.account_id, service_name='msgEwtAPI')
         self.ewt_base_url = 'https://{}/lp-messaging-ewt-app/api/account/{}'.format(ewt_domain, auth.account_id)
+        self.company = company
+        self.source = source
 
     def messaging_conversation(self, time_frame, skill_ids=None, agent_ids=None, interval=None, version=1):
         """
@@ -42,7 +44,12 @@ class MessagingOperations(WrapperBase):
                 'skillIds': skill_ids,
                 'agentIds': agent_ids,
                 'interval': interval
+            },
+            url_parameters={
+                'company': self.company,
+                'source': self.source
             }
+
         )
 
     def messaging_current_queue_health(self,  skill_ids=None, version=1):

@@ -9,13 +9,15 @@ class AgentMetrics(WrapperBase):
     https://developers.liveperson.com/data-messaging-agent-metrics-overview.html
     """
 
-    def __init__(self, auth):
+    def __init__(self, auth, company=None, source="LPApiWrapper"):
 
         super().__init__(auth=auth)
 
         # Establish base URL
         domain = self.get_domain(account_id=auth.account_id, service_name='msgHist')
         self.base_url = 'https://{}/messaging_history/api/account/{}/agent-view'.format(domain, auth.account_id)
+        self.company = company
+        self.source = source
 
     def agent_status(self, status=None, agent_ids=None, skill_ids=None, agent_group_ids=None, agent_presence=None,
                      connection_states=None):
@@ -42,6 +44,10 @@ class AgentMetrics(WrapperBase):
                 'agentGroupIds': agent_group_ids,
                 'agentPresence': agent_presence,
                 'connectionStates': connection_states
+            },
+            url_parameters = {
+                 'company': self.company,
+                 'source': self.source
             }
         )
 
