@@ -119,12 +119,12 @@ class MessagingInteractions(WrapperBase):
         conversations = self.all_conversations(body, max_workers=max_workers, debug=debug, parse_data=parse_data)
         partial_conversations =set([])
         if(conversations is not None):
+            # Step 1) Remove all the conversations that are partial
             if(parse_data == True):
-                # Step 1) Remove all the conversations that are partial
                 for conv in conversations.info:
                     if(conv.isPartial):
                         partial_conversations.add(conv.conversationId)
-                # events = ['agent_participants', 'campaign', 'cobrowse_sessions', 'consumer_participants', 'conversation_surveys', 'customer_info', 'info',.......]
+                #E.g: events = ['agent_participants', 'campaign', 'cobrowse_sessions', 'consumer_participants', 'conversation_surveys', 'customer_info', 'info',.......]
                 events = [a for a in dir(conversations) if not a.startswith('__') and not callable(getattr(conversations, a)) and isinstance(getattr(conversations, a), list)]
                 for ev in events:
                     list_event = getattr(conversations, ev)
@@ -135,8 +135,9 @@ class MessagingInteractions(WrapperBase):
                     if(conv['info']['isPartial'] == True):
                         partial_conversations.add(conv['info']['conversationId'])
                 conversations = [x for x in conversations if x['info']['conversationId'] not in partial_conversations]
+            # Step 2) Retrieve the conversations that were partial again but individually
             with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
-                # Create all future requests for the rest of the offsets in the body's data range.
+                # Create all future requests for the conversations that were originally partially complete.
                 future_requests = {
                     executor.submit(self.get_conversation_by_conversation_id, conversation_id) : conversation_id for conversation_id in partial_conversations
                 }
