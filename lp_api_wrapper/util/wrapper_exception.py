@@ -1,0 +1,2 @@
+class WrapperException(Exception):
+  pass
