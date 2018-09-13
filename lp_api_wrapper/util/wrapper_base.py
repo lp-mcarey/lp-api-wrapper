@@ -4,8 +4,7 @@ import requests
 from enum import Enum
 from lp_api_wrapper.util.domain_service import DomainService
 from lp_api_wrapper.logins.user_login import UserLogin
-from lp_api_wrapper.logins.oauth_login import OAuthLogin
-from lp_api_wrapper.util.wrapper_exception import WrapperException
+from lp_api_wrapper.logins.oauth_login import OAuthLogin 
 
 LoginToken = namedtuple('LoginToken', ['bearer', 'oauth'])
 
@@ -91,5 +90,9 @@ class WrapperBase(DomainService):
         if r.ok:
             return r.json()
         else:
-            print('Wrapper Exception: {}'.format(r.json()))
-            raise WrapperException
+            try:
+                print('Whoops! ~ Something went wrong! :( \n{}'.format(r.json()))
+            except ValueError:
+                pass
+
+            r.raise_for_status()
