@@ -324,8 +324,8 @@ class Engagements:
             self.service_activity.append(event)
 
     def __parse_sde_visitor_error(self, sde, engagement_id, engagement_sequence):
-        if 'formFillingError' in sde and 'visitorError' in sde['formFillingError']:
-            vi_sde = sde['formFillingError']['visitorError']
+        if 'visitorError' in sde and 'visitorError' in sde['visitorError']:
+            vi_sde = sde['visitorError']['visitorError']
             vi_sde['sdeType'] = sde['sdeType'] if 'sdeType' in sde else None
             vi_sde['isAuthenticated'] = sde['isAuthenticated'] if 'isAuthenticated' in sde else None
             vi_sde['serverTimeStamp'] = sde['serverTimeStamp'] if 'serverTimeStamp' in sde else None
