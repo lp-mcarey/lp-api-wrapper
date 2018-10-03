@@ -26,7 +26,7 @@ class AwayReason(WrapperBase):
         self.company = company
         self.source = source
 
-    def status_list(self):
+    def status_list(self, include_deleted=False):
         """
         Documentation:
         https://developers.liveperson.com/administration-get-all-agent-groups.html
@@ -38,6 +38,7 @@ class AwayReason(WrapperBase):
             method=APIMethod.GET,
             url='{}?v={}'.format(self.base_url, self.version),
             url_parameters={
+                'include_deleted': include_deleted,
                 'company': self.company,
                 'source': self.source
             }
