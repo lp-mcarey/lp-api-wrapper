@@ -52,7 +52,7 @@ class MessagingInteractions(WrapperBase):
             body=body
         )
 
-    def all_conversations(self, body, max_workers=7, debug=0, parse_data=False, offset_start = 0, max_conversations=-1):
+    def all_conversations(self, body, max_workers=7, debug=0, parse_data=False, offset = 0, max_limit = None):
         """
         Documentation:
         https://developers.liveperson.com/data_api-messaging-interactions-conversations.html
@@ -63,24 +63,35 @@ class MessagingInteractions(WrapperBase):
         :param max_workers: int (Max # of concurrent requests)
         :param debug: int (Status of API requests: 1=full, 2=summary, default=0)
         :param parse_data: bool (Returns a parsed Engagements data object.)
+        :param offset: Start offset
+        :param max_conversations: Max conversations to retrieve. Default -1, is all conversations based on the body
         :return List of conversations history records as decoded JSON data
         """
 
         # Grab first offset of data.
-        initial_data = self.conversations(body=body, offset=offset_start)
+        initial_data = self.conversations(body=body, offset=offset)
 
         # Number of conversations in date range that was selected in the body start parameters.
-        if(max_conversations == -1):
-            count = initial_data['_metadata']['count'] - offset_start
+        count = initial_data['_metadata']['count']
+
+        # Max number of retrivals per call
+        limit = 100
+        offset_start = offset
+        # Total number of conversation to actually retrieve
+        if(max_limit is None):
+            total_conversation = count - offset
+            last_conversation = count
         else:
-            count = max_conversations
+            if(count > max_limit + offset):
+                total_conversation = max_limit
+                last_conversation = max_limit + offset
+            else:
+                total_conversation = count - offset
+                last_conversation = count
 
         # Retrieve site ID from URL
         lesite = re.search('account/(.*)/conversations', self.base_url)
         lesite = lesite.group(1)
-
-        # Max number of retrivals per call
-        limit = 100
 
         # If there are no conversations in data range, return nothing.
         if count == 0:
@@ -89,7 +100,7 @@ class MessagingInteractions(WrapperBase):
             return None
         else:
             if debug >= 1:
-                print('[MIAPI Summary]: count=%s reqs=%s workers=%s leSite=%s' % (count, math.ceil(count/limit), max_workers, lesite))
+                print('[MIAPI Summary]: count=%s reqs=%s workers=%s leSite=%s' % (total_conversation, math.ceil(total_conversation/limit), max_workers, lesite))
 
         # Set up delivery options.
         conversations = Conversations() if parse_data else []
@@ -97,23 +108,20 @@ class MessagingInteractions(WrapperBase):
         # Multi-threading to handle multiple requests at a time.
         with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
 
-            # Create all future requests for the rest of the offsets in the body's data range.
-            # future_requests = {
-            #     executor.submit(self.conversations, body, offset,limit): offset for offset in range(offset_start, count, 100)
-            # }
-
             future_requests = {}
-            for offset in range(offset_start, count, limit):
-                if(offset + limit > count):
-                    limit = count - offset
-                    future_requests[executor.submit(self.conversations, body, offset, limit)] = offset
+            last_call = False
+            while(not last_call):
+                if(offset_start + limit > last_conversation):
+                    limit = last_conversation - offset_start
+                    future_requests[executor.submit(self.conversations, body, offset_start, limit)] = offset_start
+                    last_call = True
                 else:
-                    future_requests[executor.submit(self.conversations, body, offset,limit)] = offset
+                    future_requests[executor.submit(self.conversations, body, offset_start, limit)] = offset_start
+                    offset_start = offset_start + limit
 
             for future in concurrent.futures.as_completed(future_requests):
-
                 if debug == 1:
-                    print('[MIAPI Offset Status]: {} of {} records completed!'.format(future_requests[future] - offset_start, count))
+                    print('[MIAPI Offset Status]: {} of {} records completed!'.format(future_requests[future] - offset, total_conversation ))
 
                 # Grab dict with 'conversationHistoryRecords' from the request.  Removing any '_metadata' info.
                 records = future.result()['conversationHistoryRecords']
