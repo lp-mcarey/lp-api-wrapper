@@ -8,3 +8,4 @@ from lp_api_wrapper.apis.predefined_categories import PredefinedCategories
 from lp_api_wrapper.apis.predefined_content import PredefinedContent
 from lp_api_wrapper.apis.skills import Skills
 from lp_api_wrapper.apis.agent_groups import AgentGroups
+from lp_api_wrapper.apis.away_reason import AwayReason
