@@ -1,13 +1,13 @@
 from lp_api_wrapper.parsers.messaging_interactions.events import (
     AgentParticipant, Campaign, CoBrowseSession, ConsumerParticipant, ConversationSurvey, CustomerInfo, Info,
-    Interaction, MessageRecord, MessageScore, MessageStatus, PersonalInfo, Summary, Transfer, ResponseTime,Monitoring
+    Interaction, MessageRecord, MessageScore, MessageStatus, PersonalInfo, Summary, Transfer, Dialogs, ResponseTime,Monitoring
 )
 
 
 class Conversations:
     __slots__ = ['agent_participants', 'campaign', 'cobrowse_sessions', 'consumer_participants', 'conversation_surveys',
                  'customer_info', 'info', 'interactions', 'message_records', 'message_scores', 'message_statuses',
-                 'personal_info', 'summary', 'transfers', 'responseTime', 'monitoring']
+                 'personal_info', 'summary', 'transfers','dialogs', 'responseTime', 'monitoring']
 
     def __init__(self):
         self.agent_participants = []
@@ -24,6 +24,7 @@ class Conversations:
         self.personal_info = []
         self.summary = []
         self.transfers = []
+        self.dialogs = []
         self.responseTime = []
         self.monitoring = []
 
@@ -59,6 +60,8 @@ class Conversations:
                     self.__parse_summary_data(data=data, conversation_id=conversation_id)
                 elif 'transfers' in event:
                     self.__parse_transfer_data(data=data, conversation_id=conversation_id)
+                elif 'dialogs' in event:
+                    self.__parse_dialogs_data(data=data, conversation_id=conversation_id)
                 elif 'sdes' in event and 'events' in data and data['events']:
                     self.__parse_sde_data(data=data['events'], conversation_id=conversation_id)
                 elif 'responseTime' in event:
@@ -162,6 +165,11 @@ class Conversations:
         for t_data in data:
             event = Transfer.parse_from_data(data=t_data, conversation_id=conversation_id)
             self.transfers.append(event)
+
+    def __parse_dialogs_data(self, data, conversation_id):
+        for t_data in data:
+            event = Dialogs.parse_from_data(data=t_data, conversation_id=conversation_id)
+            self.dialogs.append(event)
 
     def __parse_sde_data(self, data, conversation_id):
         for sde_event in data:

@@ -223,7 +223,7 @@ class PersonalInfo(namedtuple('PersonalInfo', personal_info_columns)):
 summary_columns = ['conversationId', 'lastUpdatedTime', 'text']
 
 
-class Summary(namedtuple('Transfer', summary_columns)):
+class Summary(namedtuple('Summary', summary_columns)):
 
     @classmethod
     def parse_from_data(cls, data, conversation_id):
@@ -257,6 +257,22 @@ class Transfer(namedtuple('Transfer', transfer_columns)):
     def parse_from_data(cls, data, conversation_id):
         return cls(**parse_columns(columns=transfer_columns, data=data, conversation_id=conversation_id))
 
+
+# -------------- #
+# Dialogs Event #
+# -------------- #
+
+
+dialogs_columns = ['conversationId', 'dialogId', 'status', 'dialogType',
+                    'dialogChannelType', 'startTime', 'startTimeL', 'endTime', 'endTimeL',
+                    'closeReason', 'closeReasonDescription', 'skillId', 'skillName']
+
+
+class Dialogs(namedtuple('Dialogs', dialogs_columns)):
+
+    @classmethod
+    def parse_from_data(cls, data, conversation_id):
+        return cls(**parse_columns(columns=dialogs_columns, data=data, conversation_id=conversation_id))
 
 # ---------- #
 # Monitoring #
