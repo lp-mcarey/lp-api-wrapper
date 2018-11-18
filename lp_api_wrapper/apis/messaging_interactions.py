@@ -1,6 +1,7 @@
 import concurrent.futures
 import math
 import re
+import time
 from lp_api_wrapper.parsers import Conversations
 from lp_api_wrapper.util.wrapper_base import WrapperBase, APIMethod
 
@@ -37,22 +38,31 @@ class MessagingInteractions(WrapperBase):
         :param sort: str
         :return Decoded JSON data
         """
+        num_retries = 3
+        error = True
+        wait_time = 30
+        for trial in range(1,num_retries):
+            if(error):
+                try:
+                    api_return = self.process_request(
+                        method=APIMethod.POST,
+                        url='{}/search'.format(self.base_url),
+                        url_parameters={
+                            'offset': offset,
+                            'limit': limit,
+                            'sort': sort,
+                            'v':self.version,
+                            'company':self.company,
+                            'source':self.source
+                        },
+                        body=body
+                    )
+                    error = False
+                    return api_return
+                except Exception:
+                    time.sleep(trial * wait_time)
 
-        return self.process_request(
-            method=APIMethod.POST,
-            url='{}/search'.format(self.base_url),
-            url_parameters={
-                'offset': offset,
-                'limit': limit,
-                'sort': sort,
-                'v':self.version,
-                'company':self.company,
-                'source':self.source
-            },
-            body=body
-        )
-
-    def all_conversations(self, body, max_workers=7, debug=0, parse_data=False, offset = 0, max_limit = None):
+    def all_conversations(self, body, max_workers=7, debug=0, parse_data=False, offset=0, max_limit=None):
         """
         Documentation:
         https://developers.liveperson.com/data_api-messaging-interactions-conversations.html
@@ -64,7 +74,7 @@ class MessagingInteractions(WrapperBase):
         :param debug: int (Status of API requests: 1=full, 2=summary, default=0)
         :param parse_data: bool (Returns a parsed Engagements data object.)
         :param offset: Start offset
-        :param max_conversations: Max conversations to retrieve. Default -1, is all conversations based on the body
+        :param max_limit: Max conversations to retrieve. Default -1, is all conversations based on the body
         :return List of conversations history records as decoded JSON data
         """
 
@@ -111,7 +121,7 @@ class MessagingInteractions(WrapperBase):
             future_requests = {}
             last_call = False
             while(not last_call):
-                if(offset_start + limit > last_conversation):
+                if(offset_start + limit >= last_conversation):
                     limit = last_conversation - offset_start
                     future_requests[executor.submit(self.conversations, body, offset_start, limit)] = offset_start
                     last_call = True
