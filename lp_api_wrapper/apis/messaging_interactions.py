@@ -50,24 +50,26 @@ class MessagingInteractions(WrapperBase):
             # increment attempt
             attempt += 1            
             try:
+                url = f'{self.base_url}/search'
+                params = {
+                    'offset': offset,
+                    'limit': limit,
+                    'sort': sort,
+                    'v': self.version,
+                    'company': self.company,
+                    'source': self.source
+                }
                 api_result = self.process_request(
                     method=APIMethod.POST,
-                    url=f'{self.base_url}/search',
-                    url_parameters={
-                        'offset': offset,
-                        'limit': limit,
-                        'sort': sort,
-                        'v': self.version,
-                        'company': self.company,
-                        'source': self.source
-                    },
+                    url=url,
+                    url_parameters=params,
                     body=body
                 )
                 break
             except Exception:
                 api_result = None
                 print(
-                    f'[MIAPI Fail]: attempt={attempt}of{self.max_retry} body={body} offset={offset} limit={limit}')
+                    f'[MIAPI Fail]: attempt={attempt}of{self.max_retry} url={url} params={params} body={body}')
         return api_result
 
     def all_conversations(self, body, max_workers=7, debug=0, parse_data=False, offset=0, max_limit=None):
