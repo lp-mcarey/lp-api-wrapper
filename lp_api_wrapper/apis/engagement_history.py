@@ -65,7 +65,7 @@ class EngagementHistory(WrapperBase):
             except Exception:
                 api_result = None
                 print(
-                    f'[EHAPI Fail]: attempt={attempt}of{self.max_retry} body={body}')
+                    f'[EHAPI Fail]: attempt={attempt}of{self.max_retry} body={body} offset={offset} limit={limit}')
         return api_result
 
     def all_engagements(self, body, max_workers=7, debug=0, parse_data=False, offset=0, max_limit=None):

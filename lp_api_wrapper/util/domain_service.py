@@ -24,10 +24,10 @@ class DomainService:
             try:
                 return r.json()['baseURI']
             except KeyError:
-                print(f'Domain Error: \n{r.json()}')
+                print(f'[Domain Error]: {r.json()}')
         else:
             try:
-                print(f'Domain Error: \n{r.json()}')
+                print(f'[Domain Error]: {r.json()}')
             except ValueError:
                 pass
 

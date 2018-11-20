@@ -91,7 +91,7 @@ class WrapperBase(DomainService):
             return r.json()
         else:
             try:
-                print(f'Request Error: \n{r.json()}')
+                print(f'[Request Error]: {r.json()}')
             except ValueError:
                 pass
 

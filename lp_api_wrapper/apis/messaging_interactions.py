@@ -67,7 +67,7 @@ class MessagingInteractions(WrapperBase):
             except Exception:
                 api_result = None
                 print(
-                    f'[MIAPI Fail]: attempt={attempt}of{self.max_retry} body={body}')
+                    f'[MIAPI Fail]: attempt={attempt}of{self.max_retry} body={body} offset={offset} limit={limit}')
         return api_result
 
     def all_conversations(self, body, max_workers=7, debug=0, parse_data=False, offset=0, max_limit=None):
