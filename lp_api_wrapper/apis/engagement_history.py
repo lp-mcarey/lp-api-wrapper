@@ -40,7 +40,7 @@ class EngagementHistory(WrapperBase):
         num_retries = 3
         error = True
         wait_time = 30
-        for trial in range(1, num_retries):
+        for trial in range(1, num_retries + 1):
             if (error):
                 try:
                     api_return = self.process_request(
