@@ -14,15 +14,18 @@ class EngagementHistory(WrapperBase):
     https://developers.liveperson.com/data-engagement-history-methods.html
     """
 
-    def __init__(self, auth, company=None, source="LPApiWrapper"):
+    def __init__(self, auth, company=None, source="LPApiWrapper", max_retry=3, wait_factor=15):
 
         super().__init__(auth=auth)
 
         # Establish Base URL
-        domain = self.get_domain(account_id=auth.account_id, service_name='engHistDomain')
-        self.base_url = 'https://{}/interaction_history/api/account/{}'.format(domain, auth.account_id)
+        domain = self.get_domain(
+            account_id=auth.account_id, service_name='engHistDomain')
+        self.base_url = f'https://{domain}/interaction_history/api/account/{auth.account_id}'
         self.company = company
         self.source = source
+        self.max_retry = max_retry
+        self.wait_factor = wait_factor
 
     def engagements(self, body, offset=0, limit=100, sort=None):
         """
@@ -37,28 +40,33 @@ class EngagementHistory(WrapperBase):
         :param sort: str
         :return Decoded JSON data
         """
-        num_retries = 3
-        error = True
-        wait_time = 30
-        for trial in range(1, num_retries):
-            if (error):
-                try:
-                    api_return = self.process_request(
-                        method=APIMethod.POST,
-                        url='{}/interactions/search'.format(self.base_url),
-                        url_parameters={
-                            'offset': offset,
-                            'limit': limit,
-                            'sort': sort,
-                            'company': self.company,
-                            'source': self.source
-                        },
-                        body=body
-                    )
-                    error = False
-                    return api_return
-                except Exception:
-                    time.sleep(trial * wait_time)
+        attempt = 0
+        while attempt < self.max_retry:
+            # set wait time
+            wait_time = attempt * self.wait_factor
+            # wait
+            time.sleep(wait_time)
+            # increment attempt
+            attempt += 1            
+            try:
+                api_result = self.process_request(
+                    method=APIMethod.POST,
+                    url=f'{self.base_url}/interactions/search',
+                    url_parameters={
+                        'offset': offset,
+                        'limit': limit,
+                        'sort': sort,
+                        'company': self.company,
+                        'source': self.source
+                    },
+                    body=body
+                )
+                break
+            except Exception:
+                api_result = None
+                print(
+                    f'[EHAPI Fail]: attempt={attempt}of{self.max_retry} body={body}')
+        return api_result
 
     def all_engagements(self, body, max_workers=7, debug=0, parse_data=False, offset=0, max_limit=None):
         """
@@ -108,7 +116,8 @@ class EngagementHistory(WrapperBase):
             return None
         else:
             if debug >= 1:
-                print('[EHAPI Summary]: count=%s reqs=%s workers=%s leSite=%s' % (total_conversation, math.ceil(total_conversation/limit), max_workers, lesite))
+                print(
+                    f'[EHAPI Summary]: count={total_conversation} reqs={math.ceil(total_conversation/limit)} workers={max_workers} leSite={lesite}')
 
         # Set up delivery options.
         engagements = Engagements() if parse_data else []
@@ -122,23 +131,27 @@ class EngagementHistory(WrapperBase):
             while (not last_call):
                 if (offset_start + limit >= last_conversation):
                     limit = last_conversation - offset_start
-                    future_requests[executor.submit(self.engagements, body, offset_start, limit)] = offset_start
+                    future_requests[executor.submit(
+                        self.engagements, body, offset_start, limit)] = offset_start
                     last_call = True
                 else:
-                    future_requests[executor.submit(self.engagements, body, offset_start, limit)] = offset_start
+                    future_requests[executor.submit(
+                        self.engagements, body, offset_start, limit)] = offset_start
                     offset_start = offset_start + limit
 
             for future in concurrent.futures.as_completed(future_requests):
 
                 if debug == 1:
-                    print('[EHAPI Offset Status]: {} of {} records completed!'.format(future_requests[future] - offset, total_conversation ))
+                    print(
+                        f'[EHAPI Offset Status]: {future_requests[future] - offset} of {total_conversation} records completed!')
 
                 # Grab dict with 'interactionHistoryRecords' from the request.  Removing any '_metadata' info.
                 records = future.result()['interactionHistoryRecords']
 
                 # Store results
                 if parse_data:
-                    engagements.append_records(records=[record for record in records])
+                    engagements.append_records(
+                        records=[record for record in records])
                 else:
                     engagements.extend([record for record in records])
 
@@ -178,8 +191,9 @@ class EngagementHistory(WrapperBase):
             return None
         else:
             if debug >= 1:
-                print('[EHAPI Summary]: count=%s reqs=%s workers=%s leSite=%s' % (count, math.ceil(count/limit_per_call), max_workers, lesite))
-            chunk_size = 500 # MUST be greater than the limit_per_call
+                print(
+                    f'[EHAPI Summary]: count={count} reqs={math.ceil(count/limit_per_call)} workers={max_workers} leSite={lesite}')
+            chunk_size = 500  # MUST be greater than the limit_per_call
             chunk_offset = 0
             offset = 0
             chunks = math.ceil(count/chunk_size)
@@ -194,30 +208,33 @@ class EngagementHistory(WrapperBase):
                 # First iteration: chunk_offset =0 , chunk_offset + chunk_size = 150 , limit_per_call=100,  list_offset = [0,100]
                 # Second iteration:  chunk_offset =150 , chunk_offset + chunk_size = 300 , limit_per_call=100,  list_offset = [150,250]
                 # Fourth iteration: list_offset = [450,600]
-                list_offset = range(chunk_offset, chunk_offset + chunk_size, limit_per_call)
+                list_offset = range(
+                    chunk_offset, chunk_offset + chunk_size, limit_per_call)
                 for elem in list_offset:
-                    if(elem < count): # If the element is greater than the total count, we dont need to make a call starting with that offset. Fourth iteration 600>468
-                        if (elem + limit_per_call > chunk_offset + chunk_size): # For second iteration, second element: 250 + 100 > 150 + 150; For fourth iteration, second element: won't pass previous if
-                            limit_per_call = chunk_size - limit_per_call # 150 - 100 = 50
-                        future_requests[executor.submit(self.engagements, body, offset, limit_per_call)] = offset
+                    if(elem < count):  # If the element is greater than the total count, we dont need to make a call starting with that offset. Fourth iteration 600>468
+                        # For second iteration, second element: 250 + 100 > 150 + 150; For fourth iteration, second element: won't pass previous if
+                        if (elem + limit_per_call > chunk_offset + chunk_size):
+                            limit_per_call = chunk_size - limit_per_call  # 150 - 100 = 50
+                        future_requests[executor.submit(
+                            self.engagements, body, offset, limit_per_call)] = offset
                         offset = offset + limit_per_call
-
 
                 for future in concurrent.futures.as_completed(future_requests):
 
                     if debug == 1:
-                        print('[EHAPI Offset Status]: {} of {} records completed!'.format(future_requests[future], count))
+                        print(
+                            f'[EHAPI Offset Status]: {future_requests[future]} of {count} records completed!')
 
                     # Grab dict with 'conversationHistoryRecords' from the request.  Removing any '_metadata' info.
                     records = future.result()['interactionHistoryRecords']
 
                     # Store results.
                     if parse_data:
-                        engagements.append_records(records=[record for record in records])
+                        engagements.append_records(
+                            records=[record for record in records])
                     else:
                         engagements.extend([record for record in records])
 
                 limit_per_call = 100
                 chunk_offset = chunk_offset + chunk_size
             yield engagements
-
