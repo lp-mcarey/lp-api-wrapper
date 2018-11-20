@@ -10,7 +10,7 @@ import pandas as pd
 auth = UserLogin(account_id='1234', username='YOURUSERNAME', password='YOURPASSWORD')
 
 # Create MI Connections
-mi_conn = MessagingInteractions(auth=auth)
+mi_conn = MessagingInteractions(auth=auth, max_retry=3, wait_factor=15)
 
 # Creates Epoch Time from 1 day ago. (If your volume is low, or none. Consider increasing days)
 start_from = int((datetime.now() - timedelta(days=1)).timestamp() * 1000)
