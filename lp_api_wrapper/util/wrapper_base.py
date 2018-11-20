@@ -41,7 +41,7 @@ class WrapperBase(DomainService):
                 self.auth.login()
                 print('[LP API WRAPPER]: New bearer token created!')
 
-            bearer = 'Bearer {}'.format(self.auth.bearer)
+            bearer = f'Bearer {self.auth.bearer}'
 
         elif type(self.auth) == OAuthLogin:
 
@@ -91,7 +91,7 @@ class WrapperBase(DomainService):
             return r.json()
         else:
             try:
-                print('Whoops! ~ Something went wrong! :( \n{}'.format(r.json()))
+                print(f'Request Error: \n{r.json()}')
             except ValueError:
                 pass
 

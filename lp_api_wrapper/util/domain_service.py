@@ -16,10 +16,7 @@ class DomainService:
 
         # Generate request
         r = requests.get(
-            url='http://api.liveperson.net/api/account/{}/service/{}/baseURI.json?version=1.0'.format(
-                account_id,
-                service_name
-            )
+            url=f'http://api.liveperson.net/api/account/{account_id}/service/{service_name}/baseURI.json?version=1.0'
         )
 
         # Check request status
@@ -27,10 +24,10 @@ class DomainService:
             try:
                 return r.json()['baseURI']
             except KeyError:
-                print('Whoops! ~ Could not get domain! :( \n{}'.format(r.json()))
+                print(f'Domain Error: \n{r.json()}')
         else:
             try:
-                print('Whoops! ~ Something went wrong! :( \n{}'.format(r.json()))
+                print(f'Domain Error: \n{r.json()}')
             except ValueError:
                 pass
 
