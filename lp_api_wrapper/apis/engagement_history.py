@@ -49,23 +49,25 @@ class EngagementHistory(WrapperBase):
             # increment attempt
             attempt += 1            
             try:
+                url = f'{self.base_url}/interactions/search'
+                params = {
+                    'offset': offset,
+                    'limit': limit,
+                    'sort': sort,
+                    'company': self.company,
+                    'source': self.source                    
+                }
                 api_result = self.process_request(
                     method=APIMethod.POST,
-                    url=f'{self.base_url}/interactions/search',
-                    url_parameters={
-                        'offset': offset,
-                        'limit': limit,
-                        'sort': sort,
-                        'company': self.company,
-                        'source': self.source
-                    },
+                    url=url,
+                    url_parameters=params,
                     body=body
                 )
                 break
             except Exception:
                 api_result = None
                 print(
-                    f'[EHAPI Fail]: attempt={attempt}of{self.max_retry} body={body} offset={offset} limit={limit}')
+                    f'[EHAPI Fail]: attempt={attempt}of{self.max_retry} url={url} params={params} body={body}')
         return api_result
 
     def all_engagements(self, body, max_workers=7, debug=0, parse_data=False, offset=0, max_limit=None):
