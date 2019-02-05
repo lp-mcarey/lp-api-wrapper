@@ -1,11 +1,27 @@
-.idea/*
+### macOS ###
 .DS_Store
-__pycache__ 
+
+### PyCharm / IntelliJ ###
+.idea/*
+*.iml
+
+### Python ###
+__pycache__
+*.py[cod]
+
+### PyPI ###
 .pypirc
+
+### Packaging ###
 setup.cfg
 setup.py
 lp_api_wrapper.egg-info
 dist
 build
 test
+
+### Personal ###
 lp_api_wrapper/own_testing
+
+### logs ###
+logs/

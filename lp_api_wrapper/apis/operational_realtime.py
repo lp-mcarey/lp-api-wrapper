@@ -1,5 +1,5 @@
 from lp_api_wrapper.util.wrapper_base import WrapperBase, APIMethod
-
+import pandas as pd
 
 class OperationalRealtime(WrapperBase):
     """
@@ -114,7 +114,7 @@ class OperationalRealtime(WrapperBase):
             }
         )
 
-    def sla_histogram(self, time_frame, skill_ids=None, group_ids=None, histogram=None, version=1):
+    def sla_histogram(self, time_frame, skill_ids=None, group_ids=None, histogram=None, version=1, parse_data=False):
         """
         Documentation:
         https://developers.liveperson.com/data-operational-realtime-sla-histogram.html
@@ -124,10 +124,11 @@ class OperationalRealtime(WrapperBase):
         :param group_ids: str
         :param histogram: str
         :param version: int
+        :param parse_data: bool
         :return Decoded JSON data
         """
 
-        return self.process_request(
+        result = self.process_request(
             method=APIMethod.GET,
             url='{}/sla'.format(self.base_url),
             url_parameters={
@@ -138,3 +139,13 @@ class OperationalRealtime(WrapperBase):
                 'histogram': histogram
             }
         )
+
+        if parse_data:
+            results_df = pd.DataFrame(columns=['slaDataRange', 'property', 'value'])
+            for dataRange, data in result['slaDataRange'].items():
+                for prop, value in data.items():
+                    results_df = results_df.append(pd.Series([dataRange, prop, value], index=results_df.columns),
+                                                   ignore_index=True)
+            return results_df.to_json(orient='records')
+        else:
+            return result
