@@ -96,8 +96,11 @@ class ConsumerParticipant(namedtuple('AgentParticipant', consumer_participant_co
 # ------------------------- #
 
 
-conversation_survey_columns = ['conversationId', 'surveyAnswer', 'surveyQuestion', 'surveyStatus', 'surveyType']
-
+conversation_survey_columns = ['conversationId', 'surveyType-Satisfaction', 'surveyStatus-Satisfaction', 'surveyDialogId-Satisfaction', 'surveySurveyId-Satisfaction',
+                               'surveyQuestion-Satisfaction', 'surveyAnswer-Satisfaction', 'surveyQuestionId-Satisfaction', 'surveyAnswerId-Satisfaction', 
+                               'surveyQuestionType-Satisfaction', 'surveyQuestionFormat-Satisfaction', 'surveyType-PostSurvey', 'surveyStatus-PostSurvey', 
+                               'surveyDialogId-PostSurvey', 'surveySurveyId-PostSurvey', 'surveyQuestion-PostSurvey', 'surveyAnswer-PostSurvey', 
+                               'surveyQuestionId-PostSurvey', 'surveyAnswerId-PostSurvey', 'surveyQuestionType-PostSurvey', 'surveyQuestionFormat-PostSurvey']
 
 class ConversationSurvey(namedtuple('ConversationSurvey', conversation_survey_columns)):
 

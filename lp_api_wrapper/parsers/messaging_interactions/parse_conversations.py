@@ -101,16 +101,48 @@ class Conversations:
     def __parse_conversation_survey_data(self, data, conversation_id):
         for s_data in data:
 
-            s_data['surveyQuestion'] = None
-            s_data['surveyAnswer'] = None
+            s_type = None
+            if 'surveyType' in s_data:
+                s_type = s_data['surveyType']
+            
+            s_status = None
+            if 'surveyStatus' in s_data:
+                s_status = s_data['surveyStatus']
+            
+            s_dialog_id = None
+            if 'dialogId' in s_data:
+                s_dialog_id = s_data['dialogId']
+            
+            s_survey_id = None
+            if 'surveyId' in s_data:
+                s_survey_id = s_data['surveyId']
+
+            s_data[f'surveyType-{s_type}'] = s_type
+            s_data[f'surveyStatus-{s_type}'] = s_status
+            s_data[f'surveyDialogId-{s_type}'] = s_dialog_id
+            s_data[f'surveySurveyId-{s_type}'] = s_survey_id
+            
+            s_data[f'surveyQuestion-{s_type}'] = None
+            s_data[f'surveyAnswer-{s_type}'] = None
+            s_data[f'surveyQuestionId-{s_type}'] = None
+            s_data[f'surveyAnswerId-{s_type}'] = None
+            s_data[f'surveyQuestionType-{s_type}'] = None
+            s_data[f'surveyQuestionFormat-{s_type}'] = None
 
             if 'surveyData' in s_data and s_data['surveyData']:
                 for survey_data_item in s_data['surveyData']:
                     if 'question' in survey_data_item:
-                        s_data['surveyQuestion'] = survey_data_item['question']
-
+                        s_data[f'surveyQuestion-{s_type}'] = survey_data_item['question']
                     if 'answer' in survey_data_item:
-                        s_data['surveyAnswer'] = survey_data_item['answer']
+                        s_data[f'surveyAnswer-{s_type}'] = survey_data_item['answer']
+                    if 'questionId' in survey_data_item:
+                        s_data[f'surveyQuestionId-{s_type}'] = survey_data_item['questionId']                        
+                    if 'answerId' in survey_data_item:
+                        s_data[f'surveyAnswerId-{s_type}'] = survey_data_item['answerId']
+                    if 'questionType' in survey_data_item:
+                        s_data[f'surveyQuestionType-{s_type}'] = survey_data_item['questionType']                        
+                    if 'questionFormat' in survey_data_item:
+                        s_data[f'surveyQuestionFormat-{s_type}'] = survey_data_item['questionFormat']                        
 
                     event = ConversationSurvey.parse_from_data(data=s_data, conversation_id=conversation_id)
                     self.conversation_surveys.append(event)
