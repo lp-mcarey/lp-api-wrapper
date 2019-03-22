@@ -131,7 +131,9 @@ info_columns = ['conversationId', 'agentDeleted', 'alertedMCS', 'brandId', 'brow
                 'closeReasonDescription', 'csat', 'csatRate', 'device', 'duration', 'endTime', 'endTimeL',
                 'firstConversation', 'isPartial', 'latestAgentFullName', 'latestAgentGroupId', 'latestAgentGroupName',
                 'latestAgentId', 'latestAgentLoginName', 'latestAgentNickname', 'latestQueueState', 'latestSkillId',
-                'latestSkillName', 'mcs', 'operatingSystem', 'source', 'startTime', 'startTimeL', 'status']
+                'latestSkillName', 'mcs', 'operatingSystem', 'source', 'startTime', 'startTimeL', 'status', 
+                'fullDialogStatus', 'appId', 'appVersion', 'language', 'interactionContextId', 'timeZone',
+                'integration', 'integrationVersion', 'operatingSystemVersion', 'browserVersion']
 
 
 class Info(namedtuple('Info', info_columns)):
