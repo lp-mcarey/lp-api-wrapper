@@ -97,11 +97,11 @@ class ConsumerParticipant(namedtuple('AgentParticipant', consumer_participant_co
 
 
 conversation_survey_columns = ['conversationId', 'surveyAnswer', 'surveyQuestion', 'surveyStatus', 'surveyType',
-                               'surveyType-Satisfaction', 'surveyStatus-Satisfaction', 'surveyDialogId-Satisfaction', 'surveySurveyId-Satisfaction',
-                               'surveyQuestion-Satisfaction', 'surveyAnswer-Satisfaction', 'surveyQuestionId-Satisfaction', 'surveyAnswerId-Satisfaction', 
-                               'surveyQuestionType-Satisfaction', 'surveyQuestionFormat-Satisfaction', 'surveyType-PostSurvey', 'surveyStatus-PostSurvey', 
-                               'surveyDialogId-PostSurvey', 'surveySurveyId-PostSurvey', 'surveyQuestion-PostSurvey', 'surveyAnswer-PostSurvey', 
-                               'surveyQuestionId-PostSurvey', 'surveyAnswerId-PostSurvey', 'surveyQuestionType-PostSurvey', 'surveyQuestionFormat-PostSurvey']
+                               'surveyType_Satisfaction', 'surveyStatus_Satisfaction', 'surveyDialogId_Satisfaction', 'surveySurveyId_Satisfaction',
+                               'surveyQuestion_Satisfaction', 'surveyAnswer_Satisfaction', 'surveyQuestionId_Satisfaction', 'surveyAnswerId_Satisfaction', 
+                               'surveyQuestionType_Satisfaction', 'surveyQuestionFormat_Satisfaction', 'surveyType_PostSurvey', 'surveyStatus_PostSurvey', 
+                               'surveyDialogId_PostSurvey', 'surveySurveyId_PostSurvey', 'surveyQuestion_PostSurvey', 'surveyAnswer_PostSurvey', 
+                               'surveyQuestionId_PostSurvey', 'surveyAnswerId_PostSurvey', 'surveyQuestionType_PostSurvey', 'surveyQuestionFormat_PostSurvey']
 
 class ConversationSurvey(namedtuple('ConversationSurvey', conversation_survey_columns)):
 

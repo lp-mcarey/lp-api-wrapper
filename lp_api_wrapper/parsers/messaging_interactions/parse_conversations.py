@@ -122,34 +122,34 @@ class Conversations:
             if 'surveyId' in s_data:
                 s_survey_id = s_data['surveyId']
 
-            s_data[f'surveyType-{s_type}'] = s_type
-            s_data[f'surveyStatus-{s_type}'] = s_status
-            s_data[f'surveyDialogId-{s_type}'] = s_dialog_id
-            s_data[f'surveySurveyId-{s_type}'] = s_survey_id
+            s_data[f'surveyType_{s_type}'] = s_type
+            s_data[f'surveyStatus_{s_type}'] = s_status
+            s_data[f'surveyDialogId_{s_type}'] = s_dialog_id
+            s_data[f'surveySurveyId_{s_type}'] = s_survey_id
             
-            s_data[f'surveyQuestion-{s_type}'] = None
-            s_data[f'surveyAnswer-{s_type}'] = None
-            s_data[f'surveyQuestionId-{s_type}'] = None
-            s_data[f'surveyAnswerId-{s_type}'] = None
-            s_data[f'surveyQuestionType-{s_type}'] = None
-            s_data[f'surveyQuestionFormat-{s_type}'] = None
+            s_data[f'surveyQuestion_{s_type}'] = None
+            s_data[f'surveyAnswer_{s_type}'] = None
+            s_data[f'surveyQuestionId_{s_type}'] = None
+            s_data[f'surveyAnswerId_{s_type}'] = None
+            s_data[f'surveyQuestionType_{s_type}'] = None
+            s_data[f'surveyQuestionFormat_{s_type}'] = None
 
             if 'surveyData' in s_data and s_data['surveyData']:
                 for survey_data_item in s_data['surveyData']:
                     if 'question' in survey_data_item:
                         s_data['surveyQuestion'] = survey_data_item['question'] # LEGACY
-                        s_data[f'surveyQuestion-{s_type}'] = survey_data_item['question'] # NEW
+                        s_data[f'surveyQuestion_{s_type}'] = survey_data_item['question'] # NEW
                     if 'answer' in survey_data_item:
                         s_data['surveyAnswer'] = survey_data_item['answer'] # LEGACY
-                        s_data[f'surveyAnswer-{s_type}'] = survey_data_item['answer'] # NEW
+                        s_data[f'surveyAnswer_{s_type}'] = survey_data_item['answer'] # NEW
                     if 'questionId' in survey_data_item:
-                        s_data[f'surveyQuestionId-{s_type}'] = survey_data_item['questionId']                        
+                        s_data[f'surveyQuestionId_{s_type}'] = survey_data_item['questionId']                        
                     if 'answerId' in survey_data_item:
-                        s_data[f'surveyAnswerId-{s_type}'] = survey_data_item['answerId']
+                        s_data[f'surveyAnswerId_{s_type}'] = survey_data_item['answerId']
                     if 'questionType' in survey_data_item:
-                        s_data[f'surveyQuestionType-{s_type}'] = survey_data_item['questionType']                        
+                        s_data[f'surveyQuestionType_{s_type}'] = survey_data_item['questionType']                        
                     if 'questionFormat' in survey_data_item:
-                        s_data[f'surveyQuestionFormat-{s_type}'] = survey_data_item['questionFormat']                        
+                        s_data[f'surveyQuestionFormat_{s_type}'] = survey_data_item['questionFormat']                        
 
                     event = ConversationSurvey.parse_from_data(data=s_data, conversation_id=conversation_id)
                     self.conversation_surveys.append(event)
