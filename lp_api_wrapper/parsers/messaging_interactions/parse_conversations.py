@@ -101,6 +101,11 @@ class Conversations:
     def __parse_conversation_survey_data(self, data, conversation_id):
         for s_data in data:
 
+            # LEGACY COLUMNS
+            s_data['surveyQuestion'] = None
+            s_data['surveyAnswer'] = None            
+
+            # NEW COLUMN METHODS
             s_type = None
             if 'surveyType' in s_data:
                 s_type = s_data['surveyType']
@@ -132,9 +137,11 @@ class Conversations:
             if 'surveyData' in s_data and s_data['surveyData']:
                 for survey_data_item in s_data['surveyData']:
                     if 'question' in survey_data_item:
-                        s_data[f'surveyQuestion-{s_type}'] = survey_data_item['question']
+                        s_data['surveyQuestion'] = survey_data_item['question'] # LEGACY
+                        s_data[f'surveyQuestion-{s_type}'] = survey_data_item['question'] # NEW
                     if 'answer' in survey_data_item:
-                        s_data[f'surveyAnswer-{s_type}'] = survey_data_item['answer']
+                        s_data['surveyAnswer'] = survey_data_item['answer'] # LEGACY
+                        s_data[f'surveyAnswer-{s_type}'] = survey_data_item['answer'] # NEW
                     if 'questionId' in survey_data_item:
                         s_data[f'surveyQuestionId-{s_type}'] = survey_data_item['questionId']                        
                     if 'answerId' in survey_data_item:
